@@ -13,7 +13,7 @@ LONG_DESCRIPTION = 'HUB that adds higher-level functionalities to discrete funct
 
 # Setting up
 setup(
-    name="SOM",
+    name="discrete_function",
     version=VERSION,
     author=["Ian dos Anjos", "Rodrigo Dantas"],
     author_email="<iannaianjos@gmail.com>",
