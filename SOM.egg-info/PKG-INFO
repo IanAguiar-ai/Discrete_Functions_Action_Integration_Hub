@@ -1,0 +1,21 @@
+Metadata-Version: 2.1
+Name: SOM
+Version: 0.0.1
+Summary: Discrete Function HUB
+Home-page: UNKNOWN
+Author: ['Ian dos Anjos', 'Rodrigo Dantas']
+Author-email: <iannaianjos@gmail.com>
+License: UNKNOWN
+Description: 
+        # Discrete_Functions_Action_Integration_Hub
+        HUB that adds higher-level functionalities to discrete functions created from scratch.
+        
+Keywords: python,discrete_function,hub_discrete_function
+Platform: UNKNOWN
+Classifier: Development Status :: 1 - Planning
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: Unix
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Description-Content-Type: text/markdown
