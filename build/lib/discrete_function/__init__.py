@@ -1,1 +1,1 @@
-from discrete_function import discrete_function
+from .discrete_function import discrete_function
