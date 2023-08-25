@@ -209,8 +209,8 @@ class discrete_function:
                 else:
                     y3 = y3_
 
-                plt.plot(x, y2, label = f'{name_param} = {str(param_0)[:4]}')
-                plt.plot(x, y3, label = f'{name_param} = {str(param_1)[:4]}')
+                plt.plot(x, y2, label = f'{name_param} = {str(param_0)[:6]}')
+                plt.plot(x, y3, label = f'{name_param} = {str(param_1)[:6]}')
 
                 # Crie um gráfico de pontos
                 plt.scatter(x, y1, color='red', marker='o', label='Observation')
