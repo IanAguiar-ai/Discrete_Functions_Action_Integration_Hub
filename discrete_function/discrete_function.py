@@ -25,33 +25,33 @@ class probability:
 
     def __iadd__(self, value):
         if type(value) == int or type(value) == float:
-            return probability(self.value[0] + value)
+            return probability(sum(self.value) + value)
         elif type(value) == probability:
-            return probability(self.value[0] + value.value[0])
+            return probability(sum(self.value) + sum(value.value))
 
     def __add__(self, value):
         if type(value) == int or type(value) == float:
-            return probability(self.value[0] + value)
+            return probability(sum(self.value) + value)
         elif type(value) == probability:
-            return probability(self.value[0] + value.value[0])
+            return probability(sum(self.value) + sum(value.value))
 
     def __isub__(self, value):
         if type(value) == int or type(value) == float:
-            return probability(self.value[0] - value)
+            return probability(sum(self.value) - value)
         elif type(value) == probability:
-            return probability(self.value[0] - value.value[0])
+            return probability(sum(self.value) - sum(value.value))
 
     def __sub__(self, value):
         if type(value) == int or type(value) == float:
-            return probability(self.value[0] - value)
+            return probability(sum(self.value) - value)
         elif type(value) == probability:
-            return probability(self.value[0] - value.value[0])
+            return probability(sum(self.value) - sum(value.value))
 
     def __pow__(self, value):
         if type(value) == int or type(value) == float:
-            return probability(self.value[0] ** value)
+            return probability(sum(self.value) ** value)
         elif type(value) == probability:
-            return probability(self.value[0] ** value.value[0])
+            return probability(sum(self.value) ** sum(value.value))
 
     def __lt__(self, value):
         if type(value) == int or type(value) == float:
@@ -126,7 +126,7 @@ class discrete_function:
         else:
             return probability(self.value)
 
-    def adjust_to_curve(self, name_param = None, curve:list = None, max_iterations = 100, initial_value = 1):
+    def adjust_to_curve(self, name_param:str = None, curve:list = None, max_iterations = 100, initial_value = 1, plot = False, times:int = 1):
         """
         curve has to be a list with values f(x) = y where x starts
         at 0 and goes to the end of the list being real numbers.
@@ -134,41 +134,102 @@ class discrete_function:
         param is a positive number.
         """
 
-        jump = initial_value
-        param_0, param_1 = 0, jump
+        if type(name_param) == list:
+            params_variables = {}
+            for t in range(times):
+                print("-" * 15 + str(t) +  "-" * 15)
+                for name in name_param:
+                    print(f"Finding parameters for the {name}:")
+                    parans = self.adjust_to_curve(name_param = name,
+                                                  curve = curve,
+                                                  max_iterations = max_iterations,
+                                                  initial_value = initial_value,
+                                                  plot = plot)
+                    print(f"Lower Limit = {parans[0]}\nUpper Limit = {parans[1]}\n")
+                    params_variables[name] = parans
 
-        self.keyargs[name_param] = param_0
-        self.values = [self.find(i) for i in range(len(curve))]
-        dif_0 = rms(self.values, curve)
+            return params_variables
+            
+        else:
+            jump = initial_value
+            param_0, param_1 = 0, jump
 
-        self.keyargs[name_param] = param_1
-        self.values = [self.find(i) for i in range(len(curve))]
-        dif_1 = rms(self.values, curve)
+            self.keyargs[name_param] = param_0
+            self.values = [self.find(i) for i in range(len(curve))]
+            dif_0 = rms(self.values, curve)
 
-        op = 0
-        while op < max_iterations and param_0 != param_1:
-            if dif_0 < dif_1:
-                param_1 = (param_0 + param_1)/2
-                jump /= 2
-                
-                self.keyargs[name_param] = param_1
-                self.values = [self.find(i) for i in range(len(curve))]
-                dif_1 = rms(self.values, curve)
-            else:
-                param_0, param_1 =(param_0 + param_1)/2, param_1 + jump
+            self.keyargs[name_param] = param_1
+            self.values = [self.find(i) for i in range(len(curve))]
+            dif_1 = rms(self.values, curve)
 
+            op = 0
+            while op < max_iterations and param_0 != param_1:
+                if dif_0 < dif_1:
+                    param_1 = (param_0 + param_1)/2
+                    jump /= 2
+                    
+                    self.keyargs[name_param] = param_1
+                    self.values = [self.find(i) for i in range(len(curve))]
+                    dif_1 = rms(self.values, curve)
+                else:
+                    param_0, param_1 =(param_0 + param_1)/2, param_1 + jump
+
+                    self.keyargs[name_param] = param_0
+                    self.values = [self.find(i) for i in range(len(curve))]
+                    dif_0 = rms(self.values, curve)                
+                    self.keyargs[name_param] = param_1
+                    self.values = [self.find(i) for i in range(len(curve))]
+                    dif_1 = rms(self.values, curve)
+
+                #print(param_0, param_1, op)
+                #print(dif_0, dif_1)
+                op += 1
+
+            if plot:
+                import matplotlib.pyplot as plt
+                l_x = len(curve)
+                x = [i for i in range(l_x)]
+                y1 = curve
                 self.keyargs[name_param] = param_0
-                self.values = [self.find(i) for i in range(len(curve))]
-                dif_0 = rms(self.values, curve)                
+                y2_ = [self.find(i) for i in range(l_x)]
                 self.keyargs[name_param] = param_1
-                self.values = [self.find(i) for i in range(len(curve))]
-                dif_1 = rms(self.values, curve)
+                y3_ = [self.find(i) for i in range(l_x)]
+                
+                y2 = []
+                if type(y2_[0]) == probability:
+                    for sublist in y2_:
+                        y2.append(sublist.value[0])
+                else:
+                    y2 = y2_
 
-            #print(param_0, param_1, op)
-            #print(dif_0, dif_1)
-            op += 1
+                y3 = []
+                if type(y3_[0]) == probability:
+                    for sublist in y3_:
+                        y3.append(sublist.value[0])
+                else:
+                    y3 = y3_
 
-        return param_0, param_1
+                plt.plot(x, y2, label = f'{name_param} = {str(param_0)[:4]}')
+                plt.plot(x, y3, label = f'{name_param} = {str(param_1)[:4]}')
+
+                # Crie um gráfico de pontos
+                plt.scatter(x, y1, color='red', marker='o', label='Observation')
+
+                # Adicione rótulos e título ao gráfico
+                plt.xlabel('x')
+                plt.ylabel('y')
+                plt.title('Adjusting Observations in the Function')
+                plt.legend()
+
+                # Mostre o gráfico
+                plt.show()
+
+            if dif_0 < dif_1:
+                self.keyargs[name_param] = param_0
+            else:
+                self.keyargs[name_param] = param_1
+
+            return param_0, param_1
 
     def random(self, times = 1, random = random):
         n = 4
