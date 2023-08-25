@@ -147,7 +147,7 @@ class discrete_function:
                                                   plot = plot)
                     print(f"Lower Limit = {parans[0]}\nUpper Limit = {parans[1]}\n")
                     params_variables[name] = parans
-
+            print(f"Recommended value for initial_value = {int(min(params_variables.values())[0] * 2)}")
             return params_variables
             
         else:
