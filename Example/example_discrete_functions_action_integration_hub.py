@@ -98,3 +98,20 @@ parameter = model_2.adjust_to_curve(name_param = ['lambda_1', 'lambda_2', 'p'],
                                   plot = True,
                                   times = 6,
                                   max_iterations = 20)
+
+"""### You can still order the chart individually:
+
+Way 1:
+"""
+
+model_2.plot()
+
+model_2.plot([6,18])
+
+"""Way 2:"""
+
+model_2[:32].plot()
+
+model_2[6:18].plot()
+
+"""Notice that when I plot the second way the curves are smoothed."""
