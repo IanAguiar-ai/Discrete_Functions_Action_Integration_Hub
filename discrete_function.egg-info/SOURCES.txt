@@ -1,7 +1,7 @@
 README.md
 setup.py
 discrete_function/__init__.py
-discrete_function/discrete_function.py
+discrete_function/function_gec.py
 discrete_function.egg-info/PKG-INFO
 discrete_function.egg-info/SOURCES.txt
 discrete_function.egg-info/dependency_links.txt

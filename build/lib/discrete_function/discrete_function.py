@@ -6,12 +6,36 @@ class probability:
             value = [value]
         self.value = value
 
-    def plot(self, **keyargs):
+    def plot(self, iterations = None, **keyargs):
+        print(self.value)
+        if len(self.value) < 4:
+            return None
+        
         import matplotlib.pyplot as plt
-            
-        x = [i for i in range(len(self.value))]
 
-        plt.plot(x, self.value)
+        def v_1(x):
+            return x[0]
+        def v_2(y):
+            return y[1]
+
+        if iterations == None:
+            iterations = 3 + int(50/(len(self.value)+3))
+
+        x = [0]
+        y = [self.value[0]]        
+        
+        for i in range(1, len(self.value) - 2):
+            xy = smooth_curve([i-1, self.value[i - 1]],
+                              [i, self.value[i]],
+                              [i+1, self.value[i + 1]],
+                              [i+2, self.value[i + 2]],
+                              iterations)
+            x.extend(list(map(v_1, xy[1:-1])))
+            y.extend(list(map(v_2, xy[1:-1])))
+        x.append(len(self.value) - 1)
+        y.append(self.value[-1])
+
+        plt.plot(x, y)
 
         plt.xlabel('x')
         plt.ylabel('y')
@@ -163,7 +187,15 @@ class discrete_function:
                                                   plot = plot)
                     print(f"Lower Limit = {parans[0]}\nUpper Limit = {parans[1]}\n")
                     params_variables[name] = parans
-            print(f"Recommended value for initial_value = {int(min(params_variables.values())[0] * 2)}")
+
+            if int(min(params_variables.values())[0] * 2) != initial_value and int(min(params_variables.values())[0] * 2) >= 1:
+                v = int(min(params_variables.values())[0] * 2)
+                m_v = int(max(params_variables.values())[1]/v * 2.72)
+                print(f"Recommended value for initial_value = {v}\nRecommended value for max_iterations = {m_v}")
+            elif int(min(params_variables.values())[0] * 2) != initial_value and 0.2 <= min(params_variables.values())[0] * 2 < 1:
+                v = int(min(params_variables.values())[0] * 200)/100
+                m_v = int(max(params_variables.values())[1]/v * 2.72)
+                print(f"Recommended value for initial_value = {v}\nRecommended value for max_iterations = {m_v}")
             return params_variables
             
         else:
@@ -307,4 +339,28 @@ def rms(curve_1:list, curve_2:list):
         raise DifferentListSizesError("Different list sizes")
     for a, b in zip(curve_1, curve_2):
         resp = (a - b)**2 + resp
-    return resp    
+    return resp
+
+def b_(pont_1:list, pont_2:list, porc:float):  
+    return [(pont_2[0] - pont_1[0])* porc + pont_1[0],
+            (pont_2[1] - pont_1[1])* porc + pont_1[1]]#posição do ponto
+
+def bezier(pont_1:list, pont_2:list, pont_3:list, prec:int):
+    pont = []
+    for i in range(prec):
+        n = 1/(prec-1) * (i)
+        pont.append(b_(b_(pont_1, pont_2 , n), b_(pont_2, pont_3 , n), n))
+    return pont
+
+def smooth_curve(p1:list, p2:list, p3:list, p4:list, iterations:int = 4):
+    f1 = [p2[1]-p1[1], p1[1] - (p2[1]-p1[1]) * p1[0]]
+    f2 = [p4[1]-p3[1], p3[1] - (p4[1]-p3[1]) * p3[0]]
+
+    cx = -(f1[1] - f2[1])/(f1[0] - f2[0])
+    cy = f1[0] * cx + f1[1]
+    c = [cx, cy]
+
+    return bezier(*sorted((p2, c, p3), key=lambda x: x[0]), iterations)
+  
+    
+    
