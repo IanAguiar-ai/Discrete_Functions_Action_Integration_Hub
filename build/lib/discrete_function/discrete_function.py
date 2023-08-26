@@ -1,13 +1,13 @@
 from random import random
 
 class probability:
-    def __init__(self, value):
+    def __init__(self, value, start:int = 0):
         if type(value) != list:
             value = [value]
         self.value = value
+        self.start = start
 
     def plot(self, iterations = None, **keyargs):
-        print(self.value)
         if len(self.value) < 4:
             return None
         
@@ -18,22 +18,33 @@ class probability:
         def v_2(y):
             return y[1]
 
+        def to_clean(xy, limit:list):
+            xy_n = []
+            for iten in xy:
+                if limit[0] <= iten[0] <= limit[1]:
+                    xy_n.append(iten)
+            return xy_n
+            
+
         if iterations == None:
             iterations = 3 + int(50/(len(self.value)+3))
 
-        x = [0]
+        x = [self.start]
         y = [self.value[0]]        
         
         for i in range(1, len(self.value) - 2):
-            xy = smooth_curve([i-1, self.value[i - 1]],
-                              [i, self.value[i]],
-                              [i+1, self.value[i + 1]],
-                              [i+2, self.value[i + 2]],
-                              iterations)
+            xy = to_clean(smooth_curve([self.start + i-1, self.value[i - 1]],
+                                       [self.start + i, self.value[i]],
+                                       [self.start + i+1, self.value[i + 1]],
+                                       [self.start + i+2, self.value[i + 2]],
+                                       iterations),
+                          limit = [self.start + i, self.start + i + 1])
+                        
             x.extend(list(map(v_1, xy[1:-1])))
             y.extend(list(map(v_2, xy[1:-1])))
-        x.append(len(self.value) - 1)
+        x.append(self.start + len(self.value) - 1)
         y.append(self.value[-1])
+        
 
         plt.plot(x, y)
 
@@ -148,7 +159,7 @@ class discrete_function:
             if type(self.value) == probability:
                 return [self.function(i, *self.args, **self.keyargs) for i in range(x[0], x[1] + 1)]
             else:
-                return probability([self.function(i, *self.args, **self.keyargs) for i in range(x[0], x[1] + 1)])
+                return probability([self.function(i, *self.args, **self.keyargs) for i in range(x[0], x[1] + 1)], start = x[0])
             
 
     def accumulated(self, inferior_limit = 0, upper_limit = 10):
@@ -328,7 +339,7 @@ class discrete_function:
         if type(self.find(index)) == probability:
             return self.find(index)
         else:
-            return probability(self.find(index))
+            return probability(self.find(index), start = start)
 
 def rms(curve_1:list, curve_2:list):
     """
