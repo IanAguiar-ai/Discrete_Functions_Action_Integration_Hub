@@ -6,6 +6,18 @@ class probability:
             value = [value]
         self.value = value
 
+    def plot(self, **keyargs):
+        import matplotlib.pyplot as plt
+            
+        x = [i for i in range(len(self.value))]
+
+        plt.plot(x, self.value)
+
+        plt.xlabel('x')
+        plt.ylabel('y')
+
+        plt.show()
+
     def __or__(self, other):
         return probability(sum(self.value)/sum(other.value))
 
@@ -71,6 +83,9 @@ class probability:
         elif type(value) == probability:
             return self.value[0] == value.value[0]
 
+    def __len__(self):
+        return len(self.value)
+
     def __getitem__(self, index):
         if type(index) == slice:
             start, stop = index.start, index.stop
@@ -95,6 +110,7 @@ class discrete_function:
         self.function = function
         self.values = None
         self.value = None
+        self.enough = None
         self.value_accumulated = None
         self.name = function.__name__
 
@@ -212,16 +228,13 @@ class discrete_function:
                 plt.plot(x, y2, label = f'{name_param} = {str(param_0)[:6]}')
                 plt.plot(x, y3, label = f'{name_param} = {str(param_1)[:6]}')
 
-                # Crie um gráfico de pontos
                 plt.scatter(x, y1, color='red', marker='o', label='Observation')
 
-                # Adicione rótulos e título ao gráfico
                 plt.xlabel('x')
                 plt.ylabel('y')
                 plt.title('Adjusting Observations in the Function')
                 plt.legend()
 
-                # Mostre o gráfico
                 plt.show()
 
             if dif_0 < dif_1:
@@ -231,12 +244,34 @@ class discrete_function:
 
             return param_0, param_1
 
+    def plot(self, x_limits = None, **keyargs):
+        import matplotlib.pyplot as plt
+
+        self.random(1)
+        if x_limits == None:
+            x_limits = [0, self.enough]
+            
+        x = [i for i in range(x_limits[0], x_limits[1] + 1)]
+
+        try:
+            plt.plot(x, self.find([x_limits[0], x_limits[1]]).value.copy())
+        except:
+            plt.plot(x, self.find([x_limits[0], x_limits[1]]))
+
+        plt.xlabel('x')
+        plt.ylabel('y')
+        
+        plt.title(f'{self.name}')
+
+        plt.show()
+
     def random(self, times = 1, random = random):
         n = 4
         accumulate = self.accumulated(0, n)
         while accumulate < 0.999 and n < 2**10:
             n *= 2
             accumulate = self.accumulated(0, n)
+            self.enough = n
 
         k = []
         for i in range(times):
