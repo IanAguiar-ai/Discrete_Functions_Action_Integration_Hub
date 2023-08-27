@@ -106,12 +106,12 @@ Way 1:
 
 model_2.plot()
 
-model_2.plot([6,18])
+model_2.plot([1,10])
 
 """Way 2:"""
 
 model_2[:32].plot()
 
-model_2[6:18].plot()
+model_2[1:10].plot()
 
 """Notice that when I plot the second way the curves are smoothed."""
