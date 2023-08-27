@@ -148,6 +148,8 @@ class discrete_function:
         self.enough = None
         self.value_accumulated = None
         self.name = function.__name__
+        self.error = None
+        self.initial_value = 1
 
     def find(self, x:int = 0):
         if type(x) == int:
@@ -177,7 +179,7 @@ class discrete_function:
         else:
             return probability(self.value)
 
-    def adjust_to_curve(self, name_param:str = None, curve:list = None, max_iterations = 100, initial_value = 1, plot = False, times:int = 1):
+    def adjust_to_curve(self, name_param:str = None, curve:list = None, max_iterations:int = 100, initial_value:float = 1, plot:bool = False, times:int = 1, print_details:bool = True):
         """
         curve has to be a list with values f(x) = y where x starts
         at 0 and goes to the end of the list being real numbers.
@@ -188,25 +190,31 @@ class discrete_function:
         if type(name_param) == list:
             params_variables = {}
             for t in range(times):
-                print("-" * 15 + str(t) +  "-" * 15)
+                if print_details:
+                    print("-" * 15 + str(t) +  "-" * 15)
                 for name in name_param:
-                    print(f"Finding parameters for the {name}:")
+                    if print_details:
+                        print(f"Finding parameters for the {name}:")
                     parans = self.adjust_to_curve(name_param = name,
                                                   curve = curve,
                                                   max_iterations = max_iterations,
                                                   initial_value = initial_value,
                                                   plot = plot)
-                    print(f"Lower Limit = {parans[0]}\nUpper Limit = {parans[1]}\n")
+                    if print_details:
+                        print(f"Lower Limit = {parans[0]}\nUpper Limit = {parans[1]}\n")
                     params_variables[name] = parans
 
             if int(min(params_variables.values())[0] * 2) != initial_value and int(min(params_variables.values())[0] * 2) >= 1:
                 v = int(min(params_variables.values())[0] * 2)
                 m_v = int(max(params_variables.values())[1]/v * 2.72)
-                print(f"Recommended value for initial_value = {v}\nRecommended value for max_iterations = {m_v}")
+                if print_details:
+                    print(f"Recommended value for initial_value = {v}\nRecommended value for max_iterations = {m_v}")
             elif int(min(params_variables.values())[0] * 2) != initial_value and 0.2 <= min(params_variables.values())[0] * 2 < 1:
                 v = int(min(params_variables.values())[0] * 200)/100
                 m_v = int(max(params_variables.values())[1]/v * 2.72)
-                print(f"Recommended value for initial_value = {v}\nRecommended value for max_iterations = {m_v}")
+                self.initial_value = v
+                if print_details:
+                    print(f"Recommended value for initial_value = {v}\nRecommended value for max_iterations = {m_v}")
             return params_variables
             
         else:
@@ -243,6 +251,7 @@ class discrete_function:
                 #print(param_0, param_1, op)
                 #print(dif_0, dif_1)
                 op += 1
+            self.error = max(dif_0, dif_1)
 
             if plot:
                 import matplotlib.pyplot as plt
@@ -275,7 +284,7 @@ class discrete_function:
 
                 plt.xlabel('x')
                 plt.ylabel('y')
-                plt.title('Adjusting Observations in the Function')
+                plt.title(f'Adjusting Observations in the Function {self.name}')
                 plt.legend()
 
                 plt.show()
@@ -287,7 +296,7 @@ class discrete_function:
 
             return param_0, param_1
 
-    def plot(self, x_limits = None, **keyargs):
+    def plot(self, x_limits:list = None, **keyargs):
         import matplotlib.pyplot as plt
 
         self.random(1)
@@ -308,7 +317,7 @@ class discrete_function:
 
         plt.show()
 
-    def random(self, times = 1, random = random):
+    def random(self, times:int = 1, random = random):
         n = 4
         accumulate = self.accumulated(0, n)
         while accumulate < 0.999 and n < 2**10:
@@ -352,6 +361,39 @@ def rms(curve_1:list, curve_2:list):
         resp = (a - b)**2 + resp
     return resp
 
+def adjust_sample_on(sample, models, initial_value:float = 0.25, max_iterations:int = 20, times:int = 6, plot:bool = False, print_details:bool = False):
+    best_model = (models[0], 999999999999)
+    original = initial_value
+    
+    for model in models:
+        initial_value = original
+        for i in range(times - 1):
+            initial_value *= 2
+            model.adjust_to_curve(name_param = list(model.keyargs),
+                                  curve = sample,
+                                  initial_value = initial_value,
+                                  plot = False,
+                                  times = times,
+                                  max_iterations = max_iterations,
+                                  print_details = print_details)
+            if model.error < best_model[1]:
+                best_model = (model, model.error)
+            
+        model.adjust_to_curve(name_param = list(model.keyargs),
+                              curve = sample,
+                              initial_value = initial_value,
+                              plot = plot,
+                              times = 1,
+                              max_iterations = max_iterations,
+                              print_details = print_details)
+
+        if model.error < best_model[1]:
+            best_model = (model, model.error)
+
+    print("Best Model:")
+    print(best_model[0])
+    return best_model[0]
+
 def b_(pont_1:list, pont_2:list, porc:float):  
     return [(pont_2[0] - pont_1[0])* porc + pont_1[0],
             (pont_2[1] - pont_1[1])* porc + pont_1[1]]#posição do ponto
@@ -367,7 +409,10 @@ def smooth_curve(p1:list, p2:list, p3:list, p4:list, iterations:int = 4):
     f1 = [p2[1]-p1[1], p1[1] - (p2[1]-p1[1]) * p1[0]]
     f2 = [p4[1]-p3[1], p3[1] - (p4[1]-p3[1]) * p3[0]]
 
-    cx = -(f1[1] - f2[1])/(f1[0] - f2[0])
+    try:
+        cx = -(f1[1] - f2[1])/(f1[0] - f2[0])
+    except ZeroDivisionError:
+        cx = 0
     cy = f1[0] * cx + f1[1]
     c = [cx, cy]
 
