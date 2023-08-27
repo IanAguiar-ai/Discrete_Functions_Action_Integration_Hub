@@ -114,4 +114,44 @@ model_2[:32].plot()
 
 model_2[1:10].plot()
 
-"""Notice that when I plot the second way the curves are smoothed."""
+"""Notice that when I plot the second way the curves are smoothed.
+
+## Testing which model best fits the data:
+
+Functions:
+"""
+
+from math import gamma
+
+def fat(n:int):
+    try:
+        return gamma(n + 1)
+    except:
+        return 0
+
+def poisson(x:int, lambda_:float):
+    return 2.71828182**(-lambda_) * (lambda_**x)/fat(x)
+
+def normal(x:int, mi:float, sigma:float):
+    try:
+        return (2.7182**(-(1/2)*((x - mi)/sigma)**2)) / (sigma * (2*3.1415)**(1/2))
+    except:
+        return 0
+
+"""models:"""
+
+from discrete_function import adjust_sample_on
+
+curve = [normal(i, mi = 6.74, sigma = 4.25) + random() * 0.04 - 0.02 for i in range(0, 15)]
+
+model_1 = discrete_function(poisson, lambda_ = 1)
+model_2 = discrete_function(normal, sigma = 1, mi = 1)
+model_3 = discrete_function(double_poisson, lambda_1 = 1, lambda_2 = 1, p = 0.5)
+
+best_model = adjust_sample_on(curve, [model_1, model_2, model_3],
+                              plot = True)
+
+"""Notice that he found the function that best fits the data:"""
+
+print(best_model)
+best_model[-6:20].plot()
