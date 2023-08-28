@@ -362,33 +362,44 @@ def rms(curve_1:list, curve_2:list):
     return resp
 
 def adjust_sample_on(sample, models, initial_value:float = 0.25, max_iterations:int = 20, times:int = 6, plot:bool = False, print_details:bool = False):
+    from copy import deepcopy
+    
     best_model = (models[0], 999999999999)
     original = initial_value
     
     for model in models:
+        best_temporary_model = (models[0], 999999999999)
         initial_value = original
         for i in range(times - 1):
             initial_value *= 2
-            model.adjust_to_curve(name_param = list(model.keyargs),
-                                  curve = sample,
-                                  initial_value = initial_value,
-                                  plot = False,
-                                  times = times,
-                                  max_iterations = max_iterations,
-                                  print_details = print_details)
-            if model.error < best_model[1]:
-                best_model = (model, model.error)
-            
-        model.adjust_to_curve(name_param = list(model.keyargs),
-                              curve = sample,
-                              initial_value = initial_value,
-                              plot = plot,
-                              times = 1,
-                              max_iterations = max_iterations,
-                              print_details = print_details)
+            for _ in range(times):
+                model.adjust_to_curve(name_param = list(model.keyargs),
+                                      curve = sample,
+                                      initial_value = initial_value,
+                                      plot = False,
+                                      times = 1,
+                                      max_iterations = max_iterations,
+                                      print_details = print_details)
+                if model.error < best_model[1]:
+                    best_model = (deepcopy(model), deepcopy(model.error))
+                if model.error < best_temporary_model[1]:
+                    best_temporary_model = (deepcopy(model), deepcopy(model.error))
+                    
 
-        if model.error < best_model[1]:
-            best_model = (model, model.error)
+        if plot:
+            import matplotlib.pyplot as plt
+            x = [i for i  in range(len(sample))]
+
+            plt.plot(x, best_temporary_model[0][0:len(sample) - 1].value, label = f'Function')
+            plt.scatter(x, sample, color='red', marker='o', label = 'Observation')
+
+            plt.xlabel('x')
+            plt.ylabel('y')
+            plt.title(f'Best Model of {best_temporary_model[0].name}, ERROR: {best_temporary_model[1]}')
+            plt.legend()
+
+            plt.show()
+        
 
     print("Best Model:")
     print(best_model[0])
@@ -417,6 +428,4 @@ def smooth_curve(p1:list, p2:list, p3:list, p4:list, iterations:int = 4):
     c = [cx, cy]
 
     return bezier(*sorted((p2, c, p3), key=lambda x: x[0]), iterations)
-  
-    
     

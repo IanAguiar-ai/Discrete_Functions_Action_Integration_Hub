@@ -1,13 +1,25 @@
-def fat(n:int):
-    resp = 1
-    for i in range(2, n + 1):
-        resp *= i
-    return resp
-
-def poisson(x:int, mi:int):
-    return 2.71828182**(-mi) * (mi**x)/fat(x)
-
 from math import gamma
+
+def fat(n:int):
+    try:
+        return gamma(n + 1)
+    except:
+        return 0
+
+def poisson(x:int, lambda_:float):
+    return 2.71828182**(-lambda_) * (lambda_**x)/fat(x)
+
+def normal(x:int, mi:float, sigma:float):
+    try:
+        return (2.7182**(-(1/2)*((x - mi)/sigma)**2)) / (sigma * (2*3.1415)**(1/2))
+    except:
+        return 0
+
+def t_g(x, a, b, k):
+    resp = -a*(x - k)**2 + b
+    if resp < 0:
+        return 0
+    return resp
 
 def func_rodrigo(y, lambda_, sigma_2):        
     
@@ -54,7 +66,7 @@ def poisson_tripla(x, mi_1, mi_2, mi_3):
 
 
 if __name__ == "__main__":
-    from discrete_function import discrete_function
+    from discrete_function import discrete_function, adjust_sample_on
     from random import random, seed
     seed(2023)
     
@@ -101,11 +113,24 @@ if __name__ == "__main__":
     modelo = discrete_function(poisson_tripla, mi_1 = 1, mi_2 = 1, mi_3 = 1)
 
 ##    modelo.plot([0,30])    
-    p = modelo.adjust_to_curve(name_param = ['mi_1', 'mi_2', 'mi_3'],
-                         curve = curva,
-                         initial_value = 2,
-                         plot = False,
-                         times = 6,
-                         max_iterations = 27)
-    modelo[0:15].plot()
+##    p = modelo.adjust_to_curve(name_param = ['mi_1', 'mi_2', 'mi_3'],
+##                         curve = curva,
+##                         initial_value = 2,
+##                         plot = False,
+##                         times = 6,
+##                         max_iterations = 27)
+##    modelo[1:15].plot()
+##    modelo.plot([1,15])
+
+    curva = [normal(i, mi = 6.74, sigma = 4.25) + random() * 0.04 - 0.02 for i in range(0, 15)]
+    
+    model_1 = discrete_function(poisson, lambda_ = 1)
+    model_2 = discrete_function(normal, sigma = 1, mi = 1)
+    model_3 = discrete_function(t_g, a = 1, b = 1, k = 1)
+
+    best_model = adjust_sample_on(curva, [model_1, model_2, model_3],
+                                  plot = True)
+
+
+    
 
