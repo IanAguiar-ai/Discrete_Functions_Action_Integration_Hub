@@ -152,13 +152,12 @@ class discrete_function:
         self.initial_value = 1
 
     def find(self, x:int = 0):
-        if type(x) == int:
+        if type(x) == int or type(x) == float:
             if type(self.value) == probability:
                 return self.function(x, *self.args, **self.keyargs)
             else:
                 return probability(self.function(x, *self.args, **self.keyargs))
         elif type(x) == slice:
-            print(x, "<<<<<<<")
             if x.start == None:
                 x.start = 0
             if x.stop == None:
