@@ -56,6 +56,8 @@ print(model.random(20))
 
 print(model[1:2] | model[1:4])
 
+print(model[2,4,6] | model[0:6])
+
 """## Fitting curve parameter according to data:"""
 
 sample = [poisson(i, lambda_ = 3.48261) for i in range(10)]
@@ -82,10 +84,13 @@ parameter = model_2.adjust_to_curve(name_param = ['lambda_1', 'lambda_2', 'p'],
                                   curve = sample,
                                   initial_value = 1,
                                   plot = True,
-                                  times = 10,
+                                  times = 6,
                                   max_iterations = 30)
 
-"""### An example with noise:"""
+"""Note that by increasing the number of iterations, convergence and therefore accuracy will be greater.
+
+### An example with noise:
+"""
 
 seed(1)
 
@@ -155,3 +160,18 @@ best_model = adjust_sample_on(curve, [model_1, model_2, model_3],
 
 print(best_model)
 best_model[-6:20].plot()
+
+"""### With a non-sequential x:"""
+
+x = [0, 3, 5, 6, 7, 11, 15]
+
+curve = [normal(i, mi = 6.74, sigma = 4.25) + random() * 0.01 - 0.005 for i in x]
+
+model_1 = discrete_function(poisson, lambda_ = 1)
+model_2 = discrete_function(normal, sigma = 1, mi = 1)
+model_3 = discrete_function(double_poisson, lambda_1 = 1, lambda_2 = 1, p = 0.5)
+
+best_model = adjust_sample_on(curve = curve,
+                              models = [model_1, model_2, model_3],
+                              x = x,
+                              plot = True)
