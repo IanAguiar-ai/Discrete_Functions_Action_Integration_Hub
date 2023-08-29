@@ -157,11 +157,22 @@ class discrete_function:
                 return self.function(x, *self.args, **self.keyargs)
             else:
                 return probability(self.function(x, *self.args, **self.keyargs))
-        if type(x) == list or type(x) == tuple:
+        elif type(x) == slice:
+            print(x, "<<<<<<<")
+            if x.start == None:
+                x.start = 0
+            if x.stop == None:
+                x.stop = (index.start + 1)*2
             if type(self.value) == probability:
-                return [self.function(i, *self.args, **self.keyargs) for i in range(x[0], x[1] + 1)]
+                return [self.function(i, *self.args, **self.keyargs) for i in range(x.start, x.stop + 1)]
             else:
-                return probability([self.function(i, *self.args, **self.keyargs) for i in range(x[0], x[1] + 1)], start = x[0])
+                return probability([self.function(i, *self.args, **self.keyargs) for i in range(x.start, x.stop + 1)], start = x[0])
+        elif type(x) == list or type(x) == tuple:
+            if type(self.value) == probability:
+                return [self.function(i, *self.args, **self.keyargs) for i in x]
+            else:
+                return probability([self.function(i, *self.args, **self.keyargs) for i in x], start = x[0])
+            
             
 
     def accumulated(self, inferior_limit = 0, upper_limit = 10):
@@ -179,13 +190,16 @@ class discrete_function:
         else:
             return probability(self.value)
 
-    def adjust_to_curve(self, name_param:str = None, curve:list = None, max_iterations:int = 100, initial_value:float = 1, plot:bool = False, times:int = 1, print_details:bool = True):
+    def adjust_to_curve(self, name_param:str = None, curve:list = None, x:list = None, max_iterations:int = 100, initial_value:float = 1, plot:bool = False, times:int = 1, print_details:bool = True):
         """
         curve has to be a list with values f(x) = y where x starts
         at 0 and goes to the end of the list being real numbers.
         
         param is a positive number.
         """
+
+        if x == None:
+            x = [i for i in range(len(curve))]
 
         if type(name_param) == list:
             params_variables = {}
@@ -197,6 +211,7 @@ class discrete_function:
                         print(f"Finding parameters for the {name}:")
                     parans = self.adjust_to_curve(name_param = name,
                                                   curve = curve,
+                                                  x = x,
                                                   max_iterations = max_iterations,
                                                   initial_value = initial_value,
                                                   plot = plot)
@@ -222,11 +237,11 @@ class discrete_function:
             param_0, param_1 = 0, jump
 
             self.keyargs[name_param] = param_0
-            self.values = [self.find(i) for i in range(len(curve))]
+            self.values = [self.find(i) for i in x]
             dif_0 = rms(self.values, curve)
 
             self.keyargs[name_param] = param_1
-            self.values = [self.find(i) for i in range(len(curve))]
+            self.values = [self.find(i) for i in x]
             dif_1 = rms(self.values, curve)
 
             op = 0
@@ -236,32 +251,30 @@ class discrete_function:
                     jump /= 2
                     
                     self.keyargs[name_param] = param_1
-                    self.values = [self.find(i) for i in range(len(curve))]
+                    self.values = [self.find(i) for i in x]
                     dif_1 = rms(self.values, curve)
                 else:
                     param_0, param_1 =(param_0 + param_1)/2, param_1 + jump
 
                     self.keyargs[name_param] = param_0
-                    self.values = [self.find(i) for i in range(len(curve))]
+                    self.values = [self.find(i) for i in x]
                     dif_0 = rms(self.values, curve)                
                     self.keyargs[name_param] = param_1
-                    self.values = [self.find(i) for i in range(len(curve))]
+                    self.values = [self.find(i) for i in x]
                     dif_1 = rms(self.values, curve)
-
-                #print(param_0, param_1, op)
-                #print(dif_0, dif_1)
                 op += 1
             self.error = max(dif_0, dif_1)
 
             if plot:
                 import matplotlib.pyplot as plt
                 l_x = len(curve)
-                x = [i for i in range(l_x)]
+                if x == None:
+                    x = [i for i in range(l_x)]
                 y1 = curve
                 self.keyargs[name_param] = param_0
-                y2_ = [self.find(i) for i in range(l_x)]
+                y2_ = [self.find(i) for i in x]
                 self.keyargs[name_param] = param_1
-                y3_ = [self.find(i) for i in range(l_x)]
+                y3_ = [self.find(i) for i in x]
                 
                 y2 = []
                 if type(y2_[0]) == probability:
@@ -344,7 +357,7 @@ class discrete_function:
                 start = 0
             if index.stop == None:
                 stop = (index.start + 1)*2
-            index = [start, stop]
+            index = [i for i in range(start, stop + 1)]
         if type(self.find(index)) == probability:
             return self.find(index)
         else:
@@ -361,7 +374,7 @@ def rms(curve_1:list, curve_2:list):
         resp = (a - b)**2 + resp
     return resp
 
-def adjust_sample_on(sample, models, initial_value:float = 0.25, max_iterations:int = 20, times:int = 6, plot:bool = False, print_details:bool = False):
+def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, max_iterations:int = 20, times:int = 6, plot:bool = False, print_details:bool = False):
     from copy import deepcopy
     
     best_model = (models[0], 999999999999)
@@ -374,7 +387,8 @@ def adjust_sample_on(sample, models, initial_value:float = 0.25, max_iterations:
             initial_value *= 2
             for _ in range(times):
                 model.adjust_to_curve(name_param = list(model.keyargs),
-                                      curve = sample,
+                                      curve = curve,
+                                      x = x,
                                       initial_value = initial_value,
                                       plot = False,
                                       times = 1,
@@ -388,10 +402,12 @@ def adjust_sample_on(sample, models, initial_value:float = 0.25, max_iterations:
 
         if plot:
             import matplotlib.pyplot as plt
-            x = [i for i  in range(len(sample))]
+            
+            if x == None:
+                x = [i for i  in range(len(sample))]
 
-            plt.plot(x, best_temporary_model[0][0:len(sample) - 1].value, label = f'Function')
-            plt.scatter(x, sample, color='red', marker='o', label = 'Observation')
+            plt.plot(x, best_temporary_model[0][x].value, label = f'Function')
+            plt.scatter(x, curve, color='red', marker='o', label = 'Observation')
 
             plt.xlabel('x')
             plt.ylabel('y')
