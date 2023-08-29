@@ -404,7 +404,7 @@ def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, m
             import matplotlib.pyplot as plt
             
             if x == None:
-                x = [i for i  in range(len(sample))]
+                x = [i for i  in range(len(curve))]
 
             plt.plot(x, best_temporary_model[0][x].value, label = f'Function')
             plt.scatter(x, curve, color='red', marker='o', label = 'Observation')
