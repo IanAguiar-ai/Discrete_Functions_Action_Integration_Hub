@@ -319,9 +319,9 @@ class discrete_function:
         x = [i for i in range(x_limits[0], x_limits[1] + 1)]
 
         try:
-            plt.plot(x, self.find([x_limits[0], x_limits[1]]).value.copy())
+            plt.plot(x, self.find(x).value.copy())
         except:
-            plt.plot(x, self.find([x_limits[0], x_limits[1]]))
+            plt.plot(x, self.find(x))
 
         plt.xlabel('x')
         plt.ylabel('y')
