@@ -87,7 +87,7 @@ parameter = model_2.adjust_to_curve(name_param = ['lambda_1', 'lambda_2', 'p'],
                                   times = 6,
                                   max_iterations = 30)
 
-"""Note that by increasing the number of iterations, convergence and therefore accuracy will be greater.
+"""Note that by increasing the number of iterations and 'times', convergence and therefore accuracy will be greater.
 
 ### An example with noise:
 """
