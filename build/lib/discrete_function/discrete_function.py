@@ -405,7 +405,10 @@ def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, m
             if x == None:
                 x = [i for i  in range(len(curve))]
 
-            plt.plot(x, best_temporary_model[0][x].value, label = f'Function')
+            x_1 = set([i for i in range(x[0], x[-1])])
+            x_2 = set(x)
+            
+            plt.plot(sorted(x_1 | x_2), best_temporary_model[0][list(sorted(x_1 | x_2))].value, label = f'Function')
             plt.scatter(x, curve, color='red', marker='o', label = 'Observation')
 
             plt.xlabel('x')
