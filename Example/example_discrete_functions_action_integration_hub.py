@@ -175,3 +175,25 @@ best_model = adjust_sample_on(curve = curve,
                               models = [model_1, model_2, model_3],
                               x = x,
                               plot = True)
+
+"""Example with sine:"""
+
+from math import sin, cos
+
+def s2(x, a, b):
+    return sin(x*a) + sin(x*b)
+
+def c2(x, a, b):
+    return cos(x*a) + cos(x*b)
+
+model_1 = discrete_function(s2, a = 1, b = 1)
+model_2 = discrete_function(c2, a = 1, b = 1)
+
+x = [i * 0.1 for i in range(10)]
+curve = [s2(i, a = 3, b = 7) for i in x]
+
+best_model = adjust_sample_on(curve = curve, x = x,
+                              models = [model_1, model_2],
+                              times = 10,
+                              initial_value = 0.1,
+                              plot = True)
