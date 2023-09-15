@@ -12,6 +12,7 @@ class probability:
             return None
         
         import matplotlib.pyplot as plt
+        from scipy.interpolate import interp1d
 
         def v_1(x):
             return x[0]
@@ -27,26 +28,12 @@ class probability:
             
 
         if iterations == None:
-            iterations = 3 + int(50/(len(self.value)+3))
+            iterations = 8 + int(50/(len(self.value)+3))
 
-        x = [self.start]
-        y = [self.value[0]]        
+        x = [self.start + i/(iterations) for i in range((len(self.value) - 1) * iterations + 1)]        
+        y = interp1d([self.start + i for i in range(len(self.value))], self.value, kind='cubic')
         
-        for i in range(1, len(self.value) - 2):
-            xy = to_clean(smooth_curve([self.start + i-1, self.value[i - 1]],
-                                       [self.start + i, self.value[i]],
-                                       [self.start + i+1, self.value[i + 1]],
-                                       [self.start + i+2, self.value[i + 2]],
-                                       iterations),
-                          limit = [self.start + i, self.start + i + 1])
-                        
-            x.extend(list(map(v_1, xy[1:-1])))
-            y.extend(list(map(v_2, xy[1:-1])))
-        x.append(self.start + len(self.value) - 1)
-        y.append(self.value[-1])
-        
-
-        plt.plot(x, y)
+        plt.plot(x, y(x))
 
         plt.xlabel('x')
         plt.ylabel('y')
