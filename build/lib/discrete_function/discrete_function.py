@@ -349,6 +349,53 @@ class discrete_function:
         else:
             return probability(self.find(index), start = start)
 
+    def __add__(self, obj):
+        if type(obj) == discrete_function:
+            return discrete_function(lambda x, **args: self.function(x, **args) + obj.function(x, **args),
+                                     **self.keyargs,
+                                     **obj.keyargs)
+        elif type(obj) == float or type(obj) == int:
+            return discrete_function(lambda x, **args: self.function(x, **args) + obj,
+                                     **self.keyargs)
+
+    def __sub__(self, obj):
+        if type(obj) == discrete_function:
+            return discrete_function(lambda x, **args: self.function(x, **args) - obj.function(x, **args),
+                                     **self.keyargs,
+                                     **obj.keyargs)
+        elif type(obj) == float or type(obj) == int:
+            return discrete_function(lambda x, **args: self.function(x, **args) - obj,
+                                     **self.keyargs)
+
+    def __truediv__(self, obj):
+        if type(obj) == discrete_function:
+            return discrete_function(lambda x, **args: self.function(x, **args) / obj.function(x, **args) if obj.function(x, **args) != 0 else 0,
+                                     **self.keyargs,
+                                     **obj.keyargs)
+        elif type(obj) == float or type(obj) == int:
+            return discrete_function(lambda x, **args: self.function(x, **args) / obj,
+                                     **self.keyargs)
+
+    def __mul__(self, obj):
+        if type(obj) == discrete_function:
+            return discrete_function(lambda x, **args: self.function(x, **args) * obj.function(x, **args),
+                                     **self.keyargs,
+                                     **obj.keyargs)
+        elif type(obj) == float or type(obj) == int:
+            return discrete_function(lambda x, **args: self.function(x, **args) * obj,
+                                     **self.keyargs)
+    
+    def __pow__(self, obj):
+        if type(obj) == discrete_function:
+            return discrete_function(lambda x, **args: self.function(x, **args) ** obj.function(x, **args),
+                                     **self.keyargs,
+                                     **obj.keyargs)
+        elif type(obj) == float or type(obj) == int:
+            return discrete_function(lambda x, **args: self.function(x, **args) ** obj,
+                                     **self.keyargs)
+
+            
+
 def rms(curve_1:list, curve_2:list):
     """
     root mean square error
