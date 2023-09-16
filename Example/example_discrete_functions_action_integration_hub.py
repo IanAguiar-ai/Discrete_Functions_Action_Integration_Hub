@@ -176,7 +176,7 @@ best_model = adjust_sample_on(curve = curve,
                               x = x,
                               plot = True)
 
-"""Example with sine:"""
+"""### Example with sine:"""
 
 from math import sin, cos
 
@@ -195,5 +195,49 @@ curve = [s2(i, a = 3, b = 7) for i in x]
 best_model = adjust_sample_on(curve = curve, x = x,
                               models = [model_1, model_2],
                               times = 10,
+                              initial_value = 0.1,
+                              plot = True)
+
+"""## Function mixes:"""
+
+def s(x, sa, **rest): #sin
+    return sin(x*sa)
+
+def c(x, ca, **rest): #cos
+    return cos(x*ca)
+
+"""### Mixing:"""
+
+model_1 = discrete_function(s, sa = 1)
+model_2 = discrete_function(c, ca = 1)
+
+final_model = model_1 + model_2
+
+x = [i * 0.1 for i in range(10)]
+curve = [s(i, sa = 3) + c(i, ca = 4) for i in x]
+
+best_model = adjust_sample_on(curve = curve, x = x,
+                              models = [final_model],
+                              times = 20,
+                              initial_value = 0.1,
+                              plot = True)
+
+"""### Complex mixtures:"""
+
+def linear(x, la, lb, **rest):
+  return la + x*lb
+
+model_1 = discrete_function(s, sa = 1)
+model_2 = discrete_function(c, ca = 1)
+model_3 = discrete_function(linear, la = 1, lb = 1)
+
+final_model = (model_1 + model_2 - 1) * (model_3/3)
+
+x = [i * 0.1 for i in range(10)]
+curve = [(s(i, sa = 3) + c(i, ca = 20) - 1) * (linear(i, la = 12, lb = 40)/3) for i in x]
+
+best_model = adjust_sample_on(curve = curve, x = x,
+                              models = [final_model],
+                              times = 15,
                               initial_value = 0.1,
                               plot = True)
