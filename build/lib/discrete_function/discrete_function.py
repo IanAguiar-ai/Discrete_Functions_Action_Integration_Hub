@@ -1,4 +1,5 @@
 from random import random
+import inspect
 
 class probability:
     def __init__(self, value, start:int = 0):
@@ -124,11 +125,17 @@ class probability:
 
     def append(self, value):
         self.value.append(value)
-
+    
 class discrete_function:
     def __init__(self, function = None, *args, **keyargs):
-        self.args = args
-        self.keyargs = keyargs
+        if args == () and keyargs == {}:
+            argspec = inspect.getfullargspec(function)
+            self.args = args
+            self.keyargs = {keyargs_:1 for keyargs_ in argspec.args}
+            del self.keyargs["x"]
+        else:
+            self.args = args
+            self.keyargs = keyargs
         self.function = function
         self.values = None
         self.value = None
@@ -351,51 +358,50 @@ class discrete_function:
 
     def __add__(self, obj):
         if type(obj) == discrete_function:
-            return discrete_function(lambda x, **args: self.function(x, **args) + obj.function(x, **args),
+            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) + wrapper(obj.function, x, **args),
                                      **self.keyargs,
                                      **obj.keyargs)
         elif type(obj) == float or type(obj) == int:
-            return discrete_function(lambda x, **args: self.function(x, **args) + obj,
+            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) + obj,
                                      **self.keyargs)
 
     def __sub__(self, obj):
         if type(obj) == discrete_function:
-            return discrete_function(lambda x, **args: self.function(x, **args) - obj.function(x, **args),
+            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) - wrapper(obj.function, x, **args),
                                      **self.keyargs,
                                      **obj.keyargs)
         elif type(obj) == float or type(obj) == int:
-            return discrete_function(lambda x, **args: self.function(x, **args) - obj,
+            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) - obj,
                                      **self.keyargs)
 
     def __truediv__(self, obj):
         if type(obj) == discrete_function:
-            return discrete_function(lambda x, **args: self.function(x, **args) / obj.function(x, **args) if obj.function(x, **args) != 0 else 0,
+            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) / wrapper(obj.function, x, **args) if wrapper(obj.function, x, **args) != 0 else 0,
                                      **self.keyargs,
                                      **obj.keyargs)
         elif type(obj) == float or type(obj) == int:
-            return discrete_function(lambda x, **args: self.function(x, **args) / obj,
+            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) / obj,
                                      **self.keyargs)
 
     def __mul__(self, obj):
         if type(obj) == discrete_function:
-            return discrete_function(lambda x, **args: self.function(x, **args) * obj.function(x, **args),
+            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) * wrapper(obj.function, x, **args),
                                      **self.keyargs,
                                      **obj.keyargs)
         elif type(obj) == float or type(obj) == int:
-            return discrete_function(lambda x, **args: self.function(x, **args) * obj,
+            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) * obj,
                                      **self.keyargs)
     
     def __pow__(self, obj):
         if type(obj) == discrete_function:
-            return discrete_function(lambda x, **args: self.function(x, **args) ** obj.function(x, **args),
+            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) ** wrapper(obj.function, x, **args),
                                      **self.keyargs,
                                      **obj.keyargs)
         elif type(obj) == float or type(obj) == int:
-            return discrete_function(lambda x, **args: self.function(x, **args) ** obj,
+            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) ** obj,
                                      **self.keyargs)
 
             
-
 def rms(curve_1:list, curve_2:list):
     """
     root mean square error
@@ -456,6 +462,15 @@ def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, m
     print("Best Model:")
     print(best_model[0])
     return best_model[0]
+
+def filter_key_args(func, arg):
+    param = inspect.signature(func).parameters
+    arg = {key_: value for key_, value in arg.items() if key_ in param}
+    return arg
+
+def wrapper(func, *args, **kwargs):
+    resp = filter_key_args(func, kwargs)
+    return func(*args, **resp)
 
 def b_(pont_1:list, pont_2:list, porc:float):  
     return [(pont_2[0] - pont_1[0])* porc + pont_1[0],
