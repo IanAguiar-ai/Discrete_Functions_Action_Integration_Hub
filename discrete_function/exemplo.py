@@ -125,7 +125,7 @@ if __name__ == "__main__":
 
 
     from math import sin, cos
-    def s(x, sa, **args): #sin
+    def s(x, sa): #sin
         return sin(x*sa)
 
     def c(x, ca, **args): #cos

@@ -150,7 +150,10 @@ class discrete_function:
             if type(self.value) == probability:
                 return self.function(x, *self.args, **self.keyargs)
             else:
-                return probability(self.function(x, *self.args, **self.keyargs))
+                try:
+                    return probability(self.function(x, *self.args, **self.keyargs))
+                except TypeError:
+                    raise Exception("Add **args to the mixed function parameters")
         elif type(x) == slice:
             if x.start == None:
                 x.start = 0
