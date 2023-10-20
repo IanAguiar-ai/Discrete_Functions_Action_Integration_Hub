@@ -358,47 +358,47 @@ class discrete_function:
 
     def __add__(self, obj):
         if type(obj) == discrete_function:
-            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) + wrapper(obj.function, x, **args),
+            return discrete_function(lambda x, **args: self.function(x, **args) + obj.function(x, **args),
                                      **self.keyargs,
                                      **obj.keyargs)
         elif type(obj) == float or type(obj) == int:
-            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) + obj,
+            return discrete_function(lambda x, **args: self.function(x, **args) + obj,
                                      **self.keyargs)
 
     def __sub__(self, obj):
         if type(obj) == discrete_function:
-            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) - wrapper(obj.function, x, **args),
+            return discrete_function(lambda x, **args: self.function(x, **args) - obj.function(x, **args),
                                      **self.keyargs,
                                      **obj.keyargs)
         elif type(obj) == float or type(obj) == int:
-            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) - obj,
+            return discrete_function(lambda x, **args: self.function(x, **args) - obj,
                                      **self.keyargs)
 
     def __truediv__(self, obj):
         if type(obj) == discrete_function:
-            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) / wrapper(obj.function, x, **args) if wrapper(obj.function, x, **args) != 0 else 0,
+            return discrete_function(lambda x, **args: self.function(x, **args) / obj.function(x, **args) if obj.function(x, **args) != 0 else 0,
                                      **self.keyargs,
                                      **obj.keyargs)
         elif type(obj) == float or type(obj) == int:
-            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) / obj,
+            return discrete_function(lambda x, **args: self.function(x, **args) / obj,
                                      **self.keyargs)
 
     def __mul__(self, obj):
         if type(obj) == discrete_function:
-            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) * wrapper(obj.function, x, **args),
+            return discrete_function(lambda x, **args: self.function(x, **args) * obj.function(x, **args),
                                      **self.keyargs,
                                      **obj.keyargs)
         elif type(obj) == float or type(obj) == int:
-            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) * obj,
+            return discrete_function(lambda x, **args: self.function(x, **args) * obj,
                                      **self.keyargs)
     
     def __pow__(self, obj):
         if type(obj) == discrete_function:
-            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) ** wrapper(obj.function, x, **args),
+            return discrete_function(lambda x, **args: self.function(x, **args) ** obj.function(x, **args),
                                      **self.keyargs,
                                      **obj.keyargs)
         elif type(obj) == float or type(obj) == int:
-            return discrete_function(lambda x, **args: wrapper(self.function, x, **args) ** obj,
+            return discrete_function(lambda x, **args: self.function(x, **args) ** obj,
                                      **self.keyargs)
 
             
@@ -463,15 +463,6 @@ def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, m
     print(best_model[0])
     return best_model[0]
 
-def filter_key_args(func, arg):
-    param = inspect.signature(func).parameters
-    arg = {key_: value for key_, value in arg.items() if key_ in param}
-    return arg
-
-def wrapper(func, *args, **kwargs):
-    resp = filter_key_args(func, kwargs)
-    return func(*args, **resp)
-
 def b_(pont_1:list, pont_2:list, porc:float):  
     return [(pont_2[0] - pont_1[0])* porc + pont_1[0],
             (pont_2[1] - pont_1[1])* porc + pont_1[1]]#posição do ponto
@@ -495,4 +486,5 @@ def smooth_curve(p1:list, p2:list, p3:list, p4:list, iterations:int = 4):
     c = [cx, cy]
 
     return bezier(*sorted((p2, c, p3), key=lambda x: x[0]), iterations)
-    
+
+Discrete_function = discrete_function

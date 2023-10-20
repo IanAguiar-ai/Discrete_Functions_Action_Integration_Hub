@@ -1,4 +1,4 @@
-from discrete_function import discrete_function, adjust_sample_on
+from discrete_function import Discrete_function, adjust_sample_on
 
 def exp(x:float, a:float, k:float):
     return x*(a)**(1 + k)
@@ -111,16 +111,57 @@ if __name__ == "__main__":
 
 
 
+##
+##    def t1(x, a, b, c):
+##        return (x*a + b)+c
+##    def t2(x, d):
+##        return x+d
+##    model1 = discrete_function(t2)
+##    model = discrete_function(t1) + discrete_function(t2)
+##    curve = [t1(i, a = 3, b = 9, c = 5) + t2(i, d = 7) for i in range(20)]
+##    b = adjust_sample_on(curve = curve, x = [i for i in range(20)],
+##                         models = [model1, model],
+##                         plot = True)
 
-    def t1(x, a, b, c):
-        return (x*a + b)+c
-    def t2(x, d):
-        return x+d
-    model1 = discrete_function(t2)
-    model = discrete_function(t1) + discrete_function(t2)
-    curve = [t1(i, a = 3, b = 9, c = 5) + t2(i, d = 7) for i in range(20)]
-    b = adjust_sample_on(curve = curve, x = [i for i in range(20)],
-                         models = [model1, model],
-                         plot = True)
+
+    from math import sin, cos
+    def s(x, sa, **args): #sin
+        return sin(x*sa)
+
+    def c(x, ca, **args): #cos
+        return cos(x*ca)
+
+    def linear(x, la, lb, **args):
+        return la + x*lb
 
     
+    model_1 = Discrete_function(s)
+    model_2 = Discrete_function(c)
+
+    final_model = model_1 + model_2 
+
+    x = [i * 0.1 for i in range(10)]
+    curve = [s(i, sa = 3) + c(i, ca = 4) for i in x]
+
+    best_model = adjust_sample_on(curve = curve, x = x,
+                                  models = [final_model],
+                                  times = 15,
+                                  initial_value = 0.1,
+                                  plot = False)
+
+    
+    model_1 = Discrete_function(s)
+    model_2 = Discrete_function(c)
+    model_3 = Discrete_function(linear)
+
+    final_model = (model_1 + model_2 - 1) * (model_3/3)
+
+    x = [i * 0.1 for i in range(10)]
+    curve = [(s(i, sa = 3) + c(i, ca = 20) - 1) * (linear(i, la = 12, lb = 40)/3) for i in x]
+
+    best_model = adjust_sample_on(curve = curve, x = x,
+                                  models = [final_model],
+                                  times = 15,
+                                  initial_value = 0.1,
+                                  plot = True)
+     
