@@ -343,7 +343,7 @@ class discrete_function:
         plt.title(f'{self.name}')
         plt.show()
 
-    def random(self, times:int = 1, random = random) -> list:
+    def random(self, times:int = 1, random = random)i -> list:
         n = 4
         accumulate = self.accumulated(0, n)
         while accumulate < 0.999 and n < 2**10:
@@ -361,6 +361,7 @@ class discrete_function:
                     n += 1
             except TypeError:
                 #print("Process limit!")
+                pass
             k.append(n)
         return k[0] if times == 1 else k
 
