@@ -355,12 +355,12 @@ class discrete_function:
         for i in range(times):
             n_random = random()
             n = 1
-            print(self.value_accumulated, n_random)
+            #print(self.value_accumulated, n_random)
             try:
                 while self.value_accumulated < n_random:
                     n += 1
             except TypeError:
-                print("Process limit!")
+                #print("Process limit!")
             k.append(n)
         return k[0] if times == 1 else k
 
