@@ -242,7 +242,7 @@ best_model = adjust_sample_on(curve = curve, x = x,
                               initial_value = 0.1,
                               plot = True)
 
-"""## Regression
+"""## Regression:
 
 Sample and function:
 """
@@ -263,7 +263,7 @@ def model_regression(x:float, a, b):
 
 """Creating model:"""
 
-regression = discrete_function(model_regression)
+regression = Discrete_function(model_regression)
 
 best = adjust_sample_on(curve = y, x = x,
                         models = [regression],
