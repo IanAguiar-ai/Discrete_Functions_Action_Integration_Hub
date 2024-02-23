@@ -8,7 +8,10 @@ class probability:
         self.value = value
         self.start = start
 
-    def plot(self, iterations = None, **keyargs):
+    def plot(self, iterations = None, **keyargs) -> None:
+        """
+        Plot the graph using the matplotlib library
+        """
         if len(self.value) < 4:
             return None
         
@@ -122,8 +125,7 @@ class probability:
             return probability(self.value[index[0]: index[1]])
         return probability(self.value[index])
             
-
-    def append(self, value):
+    def append(self, value) -> None:
         self.value.append(value)
     
 class discrete_function:
@@ -145,7 +147,7 @@ class discrete_function:
         self.error = None
         self.initial_value = 1
 
-    def find(self, x:int = 0):
+    def find(self, x:int = 0) -> probability:
         if type(x) == int or type(x) == float:
             if type(self.value) == probability:
                 return self.function(x, *self.args, **self.keyargs)
@@ -171,7 +173,7 @@ class discrete_function:
             
             
 
-    def accumulated(self, inferior_limit = 0, upper_limit = 10):
+    def accumulated(self, inferior_limit:int = 0, upper_limit:int = 10) -> probability:
         self.values = [self.find(i) for i in range(inferior_limit, upper_limit + 1)]
 
         self.value = 0
@@ -186,7 +188,7 @@ class discrete_function:
         else:
             return probability(self.value)
 
-    def adjust_to_curve(self, name_param:str = None, curve:list = None, x:list = None, max_iterations:int = 100, initial_value:float = 1, plot:bool = False, times:int = 1, print_details:bool = True):
+    def adjust_to_curve(self, name_param:str = None, curve:list = None, x:list = None, max_iterations:int = 100, initial_value:float = 1, plot:bool = False, times:int = 1, print_details:bool = True) -> (float, float):
         """
         curve has to be a list with values f(x) = y where x starts
         at 0 and goes to the end of the list being real numbers.
@@ -305,12 +307,18 @@ class discrete_function:
 
             return param_0, param_1
 
-    def plot(self, x_limits:list = None, **keyargs):
+    def plot(self, x_limits:list = None, curve:list = None, z_score:float = 2.56, **keyargs) -> None:
+        """
+        Function that plots the graph and is capable of showing observations and the confidence interval
+        """
         import matplotlib.pyplot as plt
 
         self.random(1)
         if x_limits == None:
-            x_limits = [0, self.enough]
+            if curve == None:
+                x_limits = [0, self.enough]
+            else:
+                x_limits = [min(curve[0]), max(curve[0])]
             
         x = [i for i in range(x_limits[0], x_limits[1] + 1)]
 
@@ -319,14 +327,23 @@ class discrete_function:
         except:
             plt.plot(x, self.find(x))
 
+        if curve != None:
+            plt.scatter(curve[0], curve[1], color='red', marker='o', label = 'Observation')
+            deviation = 0
+            for value in range(len(curve[0])):
+                deviation += (curve[1][value] - self.find(curve[0][value]))**2
+            deviation = (deviation/len(curve[0]))**(1/2)
+            plt.fill_between(x,
+                             list(map(lambda x: x - deviation*z_score, self.find(x).copy())),
+                             list(map(lambda x: x + deviation*z_score, self.find(x).copy())),
+                             color = 'green', alpha = 0.25)
+        plt.legend()
         plt.xlabel('x')
         plt.ylabel('y')
-        
         plt.title(f'{self.name}')
-
         plt.show()
 
-    def random(self, times:int = 1, random = random):
+    def random(self, times:int = 1, random = random) -> list:
         n = 4
         accumulate = self.accumulated(0, n)
         while accumulate < 0.999 and n < 2**10:
@@ -338,8 +355,12 @@ class discrete_function:
         for i in range(times):
             n_random = random()
             n = 1
-            while self.value_accumulated[n] < n_random:
-                n += 1
+            print(self.value_accumulated, n_random)
+            try:
+                while self.value_accumulated < n_random:
+                    n += 1
+            except TypeError:
+                print("Process limit!")
             k.append(n)
         return k[0] if times == 1 else k
 
@@ -405,7 +426,7 @@ class discrete_function:
                                      **self.keyargs)
 
             
-def rms(curve_1:list, curve_2:list):
+def rms(curve_1:list, curve_2:list) -> float:
     """
     root mean square error
     """
@@ -416,7 +437,7 @@ def rms(curve_1:list, curve_2:list):
         resp = (a - b)**2 + resp
     return resp
 
-def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, max_iterations:int = 20, times:int = 6, plot:bool = False, print_details:bool = False):
+def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, max_iterations:int = 20, times:int = 6, plot:bool = False, print_details:bool = False) -> discrete_function:
     from copy import deepcopy
     
     best_model = (models[0], 999999999999)
@@ -460,24 +481,23 @@ def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, m
             plt.legend()
 
             plt.show()
-        
 
     print("Best Model:")
     print(best_model[0])
     return best_model[0]
 
-def b_(pont_1:list, pont_2:list, porc:float):  
+def b_(pont_1:list, pont_2:list, porc:float) -> list:  
     return [(pont_2[0] - pont_1[0])* porc + pont_1[0],
             (pont_2[1] - pont_1[1])* porc + pont_1[1]]#posição do ponto
 
-def bezier(pont_1:list, pont_2:list, pont_3:list, prec:int):
+def bezier(pont_1:list, pont_2:list, pont_3:list, prec:int) -> list:
     pont = []
     for i in range(prec):
         n = 1/(prec-1) * (i)
         pont.append(b_(b_(pont_1, pont_2 , n), b_(pont_2, pont_3 , n), n))
     return pont
 
-def smooth_curve(p1:list, p2:list, p3:list, p4:list, iterations:int = 4):
+def smooth_curve(p1:list, p2:list, p3:list, p4:list, iterations:int = 4) -> list:
     f1 = [p2[1]-p1[1], p1[1] - (p2[1]-p1[1]) * p1[0]]
     f2 = [p4[1]-p3[1], p3[1] - (p4[1]-p3[1]) * p3[0]]
 
@@ -490,4 +510,6 @@ def smooth_curve(p1:list, p2:list, p3:list, p4:list, iterations:int = 4):
 
     return bezier(*sorted((p2, c, p3), key=lambda x: x[0]), iterations)
 
+#Other names for same class:
 Discrete_function = discrete_function
+Df = discrete_function

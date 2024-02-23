@@ -1,15 +1,20 @@
 Metadata-Version: 2.1
 Name: discrete-function
-Version: 0.1.2
+Version: 0.1.3
 Summary: Discrete Function HUB
 Home-page: UNKNOWN
-Author: ['Ian dos Anjos', 'Rodrigo Dantas']
+Author: ['Ian dos Anjos']
 Author-email: <iannaianjos@gmail.com>
 License: UNKNOWN
 Description: 
         # Discrete_Functions_Action_Integration_Hub
         HUB that adds higher-level functionalities to discrete functions created from scratch.
         
+        ## To download:
+        
+        ```
+        pip install git+https://github.com/IanAguiar-ai/Discrete_Functions_Action_Integration_Hub
+        ```
 Keywords: python,discrete_function,hub_discrete_function
 Platform: UNKNOWN
 Classifier: Development Status :: 1 - Planning
