@@ -13,7 +13,7 @@ Original file is located at
 
 """## Importing library:"""
 
-from discrete_function import discrete_function
+from discrete_function import *
 
 """# Functionalities:
 
@@ -200,16 +200,16 @@ best_model = adjust_sample_on(curve = curve, x = x,
 
 """## Function mixes:"""
 
-def s(x, sa, **rest): #sin
+def s(x, sa, **args): #sin
     return sin(x*sa)
 
-def c(x, ca, **rest): #cos
+def c(x, ca, **args): #cos
     return cos(x*ca)
 
 """### Mixing:"""
 
-model_1 = discrete_function(s, sa = 1)
-model_2 = discrete_function(c, ca = 1)
+model_1 = discrete_function(s)
+model_2 = discrete_function(c)
 
 final_model = model_1 + model_2
 
@@ -224,12 +224,12 @@ best_model = adjust_sample_on(curve = curve, x = x,
 
 """### Complex mixtures:"""
 
-def linear(x, la, lb, **rest):
+def linear(x, la, lb, **args):
   return la + x*lb
 
-model_1 = discrete_function(s, sa = 1)
-model_2 = discrete_function(c, ca = 1)
-model_3 = discrete_function(linear, la = 1, lb = 1)
+model_1 = discrete_function(s)
+model_2 = discrete_function(c)
+model_3 = discrete_function(linear)
 
 final_model = (model_1 + model_2 - 1) * (model_3/3)
 
@@ -241,3 +241,36 @@ best_model = adjust_sample_on(curve = curve, x = x,
                               times = 15,
                               initial_value = 0.1,
                               plot = True)
+
+"""## Regression
+
+Sample and function:
+"""
+
+x = [3, 3, 3, 29, 29, 29, 79, 79, 79, 127, 127, 127,
+     165, 165, 165, 300, 300, 300, 248, 248, 248,
+     200, 200, 200, 317, 317, 317, 156, 156, 156]
+
+y = [37, 37, 37, 58, 58, 58, 57, 58, 57, 67,
+     66, 66, 67, 68, 68, 74, 75, 75, 81, 81,
+     81, 74, 74, 75, 75, 75, 75, 79, 78, 77]
+
+y = list(map(lambda x: -x, y))
+
+from math import log
+def model_regression(x:float, a, b):
+    return -a + 20 * log(max(b, 0.001)/max(x, 0.001), 10)
+
+"""Creating model:"""
+
+regression = discrete_function(model_regression)
+
+best = adjust_sample_on(curve = y, x = x,
+                        models = [regression],
+                        times = 12,
+                        initial_value = 0.1,
+                        plot = False)
+
+"""Plotting with the samples:"""
+
+best.plot([0, 300], curve = [x, y])
