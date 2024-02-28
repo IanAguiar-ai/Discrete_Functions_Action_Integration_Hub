@@ -274,3 +274,16 @@ best = adjust_sample_on(curve = y, x = x,
 """Plotting with the samples:"""
 
 best.plot([0, 300], curve = [x, y])
+
+"""## Evaluating the function:"""
+
+def func(x, a, b, c):
+  a = b + c
+  b = a + c
+  c = (b + a) * (b - a)
+  b = c/(b+a)
+  return b
+
+model = Df(func) #Df is the same as Discrete_function
+
+model.evaluate()
