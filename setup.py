@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     long_description = "\n" + fh.read()
 
-VERSION = '1.0.1'
+VERSION = '1.1.0'
 DESCRIPTION = 'Discrete Function HUB'
 LONG_DESCRIPTION = 'HUB that adds higher-level functionalities to discrete functions created from scratch.'
 
@@ -21,7 +21,7 @@ setup(
     long_description_content_type="text/markdown",
     long_description=long_description,
     packages=find_packages(),
-    install_requires=['matplotlib', 'scipy'],
+    install_requires=['matplotlib', 'scipy', 'line_profiler'],
     keywords=['python', 'discrete_function', 'hub_discrete_function'],
     classifiers=[
         "Development Status :: 1 - Planning",
