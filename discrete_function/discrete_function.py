@@ -365,6 +365,27 @@ class discrete_function:
             k.append(n)
         return k[0] if times == 1 else k
 
+    def evaluate(self, limits:list = [1, 1000, 1]) -> None:
+        if self.name != "<lambda>":
+            from dis import dis
+            from line_profiler import LineProfiler
+            print("Code in machine:")
+            dis(self.function)
+
+            print("\n\n")
+
+            time_function = LineProfiler()
+            time_function.add_function(self.function)
+
+            print(f"Run {int((limits[1] - limits[0])/limits[2]) + 1} times:")
+            time_function.run(f"for i in range({limits[0]}, {limits[1]}, {limits[2]}):\n\t{self.function.__name__}(x = i, *{self.args}, **{self.keyargs})")
+            time_function.print_stats()
+            print("="*62)
+            print("="*62)
+            print("\n")
+        else:
+            print(f"{self.name} cannot be evaluated!")
+
     def __str__(self):
         return f"Function: {self.name}\nAll args: {self.args} {self.keyargs}"
 
