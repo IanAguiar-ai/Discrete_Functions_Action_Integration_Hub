@@ -485,7 +485,7 @@ class discrete_function:
 
     def evaluate(self, limits:list = [1, 1001, 1]) -> None:
         """
-        Last modified: (1.2.0)
+        Last modified: (1.2.1)
         """
         if self.name != "<lambda>":
             from dis import dis
@@ -502,11 +502,15 @@ class discrete_function:
             time_function.run(f"for i in range({limits[0]}, {limits[1]}, {limits[2]}):\n\t{self.function.__name__}(x = i, *{self.args}, **{self.keyargs})")
             time_function.print_stats()
 
-            time_function_error = LineProfiler()
-            time_function_error.add_function(self.function_error)
+            try:
+                time_function_error = LineProfiler()
+                time_function_error.add_function(self.function_error)
 
-            time_function_error.run(f"for i in range({limits[0]}, {limits[1]}, {limits[2]}):\n\t{self.function_error.__name__}(i, i+1)")
-            time_function_error.print_stats()
+                time_function_error.run(f"for i in range({limits[0]}, {limits[1]}, {limits[2]}):\n\t{self.function_error.__name__}(i, i+1)")
+                time_function_error.print_stats()
+            except:
+                pass
+            
             print("="*62)
             print("="*62)
             print("\n")
