@@ -287,3 +287,27 @@ def func(x, a, b, c):
 model = Df(func) #Df is the same as Discrete_function
 
 model.evaluate()
+
+"""## Change error function:
+
+New error function:
+"""
+
+def error_new(curve_1:list, curve_2:list):
+    resp:float = 0
+    if len(curve_1) != len(curve_2):
+        raise "Different list sizes"
+    for a, b in zip(curve_1, curve_2):
+        resp:float = (a - b)*(a - b) + resp
+        if a > b:
+            resp*=2
+    return resp
+
+regression = Discrete_function(model_regression)
+regression.function_error = error_new
+
+best = adjust_sample_on(curve = y, x = x,
+                        models = [regression],
+                        times = 6,
+                        initial_value = 0.1,
+                        plot = True)
