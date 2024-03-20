@@ -2,6 +2,7 @@ from random import random
 import inspect
 
 class probability:
+    __slots__ = ("value", "start")
     def __init__(self, value, start:int = 0):
         if type(value) != list:
             value = [value]
@@ -232,9 +233,12 @@ class probability:
         self.value.append(value)
     
 class discrete_function:
+    __slots__ = ("function", "__values", "value", "__enough", "__value_accumulated",
+                 "name", "error", "function_error", "__initial_value", "args", "keyargs",
+                 "__memory")
     def __init__(self, function = None, *args, **keyargs):
         """
-        Last modified: (1.2.0)
+        Last modified: (1.3.0)
         """
         if args == () and keyargs == {}:
             argspec:dict = inspect.getfullargspec(function)
@@ -245,14 +249,15 @@ class discrete_function:
             self.args:list = args
             self.keyargs:dict = keyargs
         self.function = function
-        self.values:list = None
+        self.__values:list = None
         self.value:probability = None
-        self.enough:float = None
-        self.value_accumulated:list = None
+        self.__enough:float = None
+        self.__value_accumulated:list = None
         self.name:str = function.__name__
         self.error:float = None
         self.function_error = rms #function(list, list)
-        self.initial_value:int = 1
+        self.__initial_value:int = 1
+        self.__memory:list = None #Last lists in regression
 
     def find(self, x:int = 0) -> probability:
         """
@@ -285,14 +290,14 @@ class discrete_function:
         """
         Last modified: (1.0.0)
         """
-        self.values:int = [self.find(i) for i in range(inferior_limit, upper_limit + 1)]
+        self.__values:int = [self.find(i) for i in range(inferior_limit, upper_limit + 1)]
 
         self.value:int = 0
-        self.value_accumulated:int = []
-        for value in self.values:
+        self.__value_accumulated:int = []
+        for value in self.__values:
             #print(self.value, value, type(self.value), type(value))
             self.value:float = value + self.value
-            self.value_accumulated.append(self.value)
+            self.__value_accumulated.append(self.value)
 
         if type(self.value) == probability:
             return self.value
@@ -304,8 +309,9 @@ class discrete_function:
         curve has to be a list with values f(x) = y where x starts
         at 0 and goes to the end of the list being real numbers.
         param is a positive number.
-        Last modified: (1.2.0)
+        Last modified: (1.3.0)
         """
+        self.__memory = [x, curve]
 
         if x == None:
             x:list = [i for i in range(len(curve))]
@@ -336,7 +342,7 @@ class discrete_function:
             elif int(min(params_variables.values())[0] * 2) != initial_value and 0.2 <= min(params_variables.values())[0] * 2 < 1:
                 v:int = int(min(params_variables.values())[0] * 200)/100
                 m_v:int = int(max(params_variables.values())[1]/v * 2.72)
-                self.initial_value = v
+                self.__initial_value = v
                 if print_details:
                     print(f"Recommended value for initial_value = {v}\nRecommended value for max_iterations = {m_v}")
             return params_variables
@@ -349,12 +355,12 @@ class discrete_function:
             param_0, param_1 = 0, jump
 
             self.keyargs[name_param] = param_0
-            self.values = [self.find(i) for i in x]
-            dif_0:float = self.function_error(self.values, curve)
+            self.__values = [self.find(i) for i in x]
+            dif_0:float = self.function_error(self.__values, curve)
 
             self.keyargs[name_param] = param_1
-            self.values = [self.find(i) for i in x]
-            dif_1:float = self.function_error(self.values, curve)
+            self.__values = [self.find(i) for i in x]
+            dif_1:float = self.function_error(self.__values, curve)
 
             op = 0
             while op < max_iterations and param_0 != param_1:
@@ -363,17 +369,17 @@ class discrete_function:
                     jump /= 2
                     
                     self.keyargs[name_param] = param_1
-                    self.values = [self.find(i) for i in x]
-                    dif_1 = self.function_error(self.values, curve)
+                    self.__values = [self.find(i) for i in x]
+                    dif_1 = self.function_error(self.__values, curve)
                 else:
                     param_0, param_1 =(param_0 + param_1)/2, param_1 + jump
 
                     self.keyargs[name_param] = param_0
-                    self.values = [self.find(i) for i in x]
-                    dif_0 = self.function_error(self.values, curve)        
+                    self.__values = [self.find(i) for i in x]
+                    dif_0 = self.function_error(self.__values, curve)        
                     self.keyargs[name_param] = param_1
-                    self.values = [self.find(i) for i in x]
-                    dif_1 = self.function_error(self.values, curve)
+                    self.__values = [self.find(i) for i in x]
+                    dif_1 = self.function_error(self.__values, curve)
                 op += 1
             self.error = max(dif_0, dif_1)
 
@@ -431,7 +437,7 @@ class discrete_function:
         self.random(1)
         if x_limits == None:
             if curve == None:
-                x_limits = [0, self.enough]
+                x_limits = [0, self.__enough]
             else:
                 x_limits = [min(curve[0]), max(curve[0])]
             
@@ -467,15 +473,15 @@ class discrete_function:
         while accumulate < 0.999 and n < 2**10:
             n *= 2
             accumulate = self.accumulated(0, n)
-            self.enough = n
+            self.__enough = n
 
         k = []
         for i in range(times):
             n_random = random()
             n = 1
-            #print(self.value_accumulated, n_random)
+            #print(self.__value_accumulated, n_random)
             try:
-                while self.value_accumulated < n_random:
+                while self.__value_accumulated < n_random:
                     n += 1
             except TypeError:
                 #print("Process limit!")
@@ -516,6 +522,35 @@ class discrete_function:
             print("\n")
         else:
             print(f"{self.name} cannot be evaluated!")
+
+    def residual(self):
+        """
+        Plots of residuals
+        Last modified: (1.3.0)
+        """
+        import matplotlib.pyplot as plt
+        
+        residual:list = []
+        for i in range(len(self.__memory[0])):
+            residual.append(self.__getitem__(self.__memory[0][i])[0].value[0] - self.__memory[1][i])
+
+        fig, axs = plt.subplots(1, 2, figsize=(12, 5))
+
+        axs[0].scatter(self.__memory[0], residual, color="red", marker="o", label="Observation")
+        axs[0].set_xlabel("x")
+        axs[0].set_ylabel("Error")
+        axs[0].set_title("Residual Error")
+        axs[0].axhline(0, color="blue", linestyle="--", label="Zero line")
+        axs[0].legend()
+
+        axs[1].hist(residual, bins=int(len(residual)**(1/2) + 2), color="skyblue", edgecolor="black")
+        axs[1].set_xlabel("Residual")
+        axs[1].set_ylabel("Frequency")
+        axs[1].set_title("Histogram of Residual")
+        axs[1].grid(True)
+
+        plt.tight_layout()
+        plt.show()
 
     def __str__(self):
         """
