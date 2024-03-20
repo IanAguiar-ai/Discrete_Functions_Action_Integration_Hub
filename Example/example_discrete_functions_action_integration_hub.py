@@ -311,3 +311,5 @@ best = adjust_sample_on(curve = y, x = x,
                         times = 6,
                         initial_value = 0.1,
                         plot = True)
+
+best.residual()
