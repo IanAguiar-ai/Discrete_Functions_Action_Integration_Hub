@@ -523,16 +523,16 @@ class discrete_function:
         else:
             print(f"{self.name} cannot be evaluated!")
 
-    def residual(self):
+    def residual(self) -> list:
         """
         Plots of residuals
-        Last modified: (1.3.0)
+        Last modified: (1.3.1)
         """
         import matplotlib.pyplot as plt
         
         residual:list = []
         for i in range(len(self.__memory[0])):
-            residual.append(self.__getitem__(self.__memory[0][i])[0].value[0] - self.__memory[1][i])
+            residual.append(self.__memory[1][i] - self.__getitem__(self.__memory[0][i])[0].value[0])
 
         fig, axs = plt.subplots(1, 2, figsize=(12, 5))
 
@@ -551,6 +551,8 @@ class discrete_function:
 
         plt.tight_layout()
         plt.show()
+
+        return residual
 
     def __str__(self):
         """
@@ -623,6 +625,9 @@ class discrete_function:
                                      **self.keyargs)
     
     def __pow__(self, obj):
+        """
+        Last modified: (1.0.0)
+        """
         if type(obj) == discrete_function:
             return discrete_function(lambda x, **args: self.function(x, **args) ** obj.function(x, **args),
                                      **self.keyargs,
@@ -645,6 +650,15 @@ def rms(curve_1, curve_2) -> float:
             a:float = a.value[0]
         resp:float = (a - b)*(a - b) + resp
     return resp
+
+def convert(value:"unknown") -> float:
+    """
+    Convert class to float
+    Last modified: (1.3.1)
+    """
+    if type(value) != float and type(value) != int:
+        return value.value[0]
+    return value
 
 def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, max_iterations:int = 20, times:int = 6, plot:bool = False, print_details:bool = False) -> discrete_function:
     """
