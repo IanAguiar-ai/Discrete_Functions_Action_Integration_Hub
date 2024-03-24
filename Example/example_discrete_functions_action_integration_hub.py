@@ -244,7 +244,7 @@ best_model = adjust_sample_on(curve = curve, x = x,
 
 """## Regression:
 
-Sample and function:
+### Sample and function:
 """
 
 x = [3, 3, 3, 29, 29, 29, 79, 79, 79, 127, 127, 127,
@@ -258,10 +258,10 @@ y = [37, 37, 37, 58, 58, 58, 57, 58, 57, 67,
 y = list(map(lambda x: -x, y))
 
 from math import log
-def model_regression(x:float, a, b):
+def model_regression(x:float, a, b, **args):
     return -a + 20 * log(max(b, 0.001)/max(x, 0.001), 10)
 
-"""Creating model:"""
+"""### Creating model:"""
 
 regression = Discrete_function(model_regression)
 
@@ -271,7 +271,7 @@ best = adjust_sample_on(curve = y, x = x,
                         initial_value = 0.1,
                         plot = False)
 
-"""Plotting with the samples:"""
+"""### Plotting with the samples:"""
 
 best.plot([0, 300], curve = [x, y])
 
@@ -290,7 +290,7 @@ model.evaluate()
 
 """## Change error function:
 
-New error function:
+### New error function:
 """
 
 def error_new(curve_1:list, curve_2:list):
@@ -312,4 +312,51 @@ best = adjust_sample_on(curve = y, x = x,
                         initial_value = 0.1,
                         plot = True)
 
-best.residual()
+"""## Residual analisis:
+
+### Modeling error
+"""
+
+def curve(x, a_, b_, c_, d_, e_, f_, **args):
+  if x < 100:
+    return x * a_ + b_
+  elif x < 200:
+    return x * c_ + d_
+  else:
+    return x * e_ + f_
+
+residual = best.residual()
+
+error = adjust_sample_on(curve = residual, x = x,
+                         models = [Df(curve)],
+                         times = 12,
+                         initial_value = 0.1,
+                         plot = False)
+
+final_model = best + error
+final_model.plot([0, 320], curve = [x, y])
+
+"""### Modeling error of error"""
+
+residual_2 = error.residual()
+
+def curve2(x, a__, b__, c__, d__, e__, f__, **args):
+  if x < 70:
+    return -x * a__ + b__
+  elif x < 140:
+    return x * c__
+  elif 160 < x < 220:
+    return -x * d__ + 15
+  else:
+    return x * e__ - f__
+
+error_of_error = adjust_sample_on(curve = residual_2, x = x,
+                         models = [Df(curve2)],
+                         times = 12,
+                         initial_value = 0.1,
+                         plot = False)
+
+final_final_error = best + error + error_of_error
+final_final_error._discrete_function__memory = best._discrete_function__memory
+final_final_error.residual()
+final_final_error.plot([0, 320], curve = [x, y])
