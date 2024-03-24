@@ -529,7 +529,10 @@ class discrete_function:
         Last modified: (1.3.1)
         """
         import matplotlib.pyplot as plt
-        
+
+        if self.__memory == None:
+            raise Warning("To see the residual you must adjust the model with adjust_sample_on or adjust_to_curve!")
+            
         residual:list = []
         for i in range(len(self.__memory[0])):
             residual.append(self.__memory[1][i] - self.__getitem__(self.__memory[0][i])[0].value[0])
@@ -568,7 +571,7 @@ class discrete_function:
             start, stop = index.start, index.stop
             if index.start == None:
                 start = 0
-            if index.stop == None:
+            if index.stop == Noneraise:
                 stop = (index.start + 1)*2
             index = [i for i in range(start, stop + 1)]
         if type(self.find(index)) == probability:
