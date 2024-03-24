@@ -526,7 +526,7 @@ class discrete_function:
     def residual(self) -> list:
         """
         Plots of residuals
-        Last modified: (1.3.1)
+        Last modified: (1.3.2)
         """
         import matplotlib.pyplot as plt
 
@@ -571,7 +571,7 @@ class discrete_function:
             start, stop = index.start, index.stop
             if index.start == None:
                 start = 0
-            if index.stop == Noneraise:
+            if index.stop == None:
                 stop = (index.start + 1)*2
             index = [i for i in range(start, stop + 1)]
         if type(self.find(index)) == probability:
