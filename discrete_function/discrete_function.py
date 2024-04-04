@@ -46,20 +46,20 @@ class probability:
 
         plt.show()
 
-    def __or__(self, other):
+    def __or__(self, other) -> "probability":
         """
         Last modified: (1.0.0)
         """
         return probability(sum(self.value)/sum(other.value))
 
-    def __div__(self, other):
+    def __div__(self, other) -> float:
         """
         Last modified: (1.0.0)
         """
         if len(self.value) == len(other.value) == 1:
             return self.value[0]/other.value[0]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Last modified: (1.0.0)
         """
@@ -67,7 +67,7 @@ class probability:
             self.value:list = self.value[0]
         return str(self.value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Last modified: (1.0.0)
         """
@@ -75,7 +75,7 @@ class probability:
             self.value:list = self.value[0]
         return str(self.value)
 
-    def __iadd__(self, value):
+    def __iadd__(self, value) -> "probability":
         """
         Last modified: (1.0.0)
         """
@@ -87,7 +87,7 @@ class probability:
         elif type(value) == probability:
             return probability(sum(self.value) + sum(value.value))
 
-    def __add__(self, value):
+    def __add__(self, value) -> "probability":
         """
         Last modified: (1.0.0)
         """
@@ -99,7 +99,7 @@ class probability:
         elif type(value) == probability:
             return probability(sum(self.value) + sum(value.value))
 
-    def __isub__(self, value):
+    def __isub__(self, value) -> "probability":
         """
         Last modified: (1.0.0)
         """
@@ -111,7 +111,7 @@ class probability:
         elif type(value) == probability:
             return probability(sum(self.value) - sum(value.value))
 
-    def __sub__(self, value):
+    def __sub__(self, value) -> "probability":
         """
         Last modified: (1.0.0)
         """
@@ -120,7 +120,7 @@ class probability:
         elif type(value) == probability:
             return probability(sum(self.value) - sum(value.value))
 
-    def __mul__(self, value):
+    def __mul__(self, value) -> "probability":
         """
         Last modified: (1.0.0)
         """
@@ -129,7 +129,7 @@ class probability:
         elif type(value) == probability:
             return probability(sum(self.value) * sum(value.value))
 
-    def __pow__(self, value):
+    def __pow__(self, value) -> "probability":
         """
         Last modified: (1.0.0)
         """
@@ -141,7 +141,7 @@ class probability:
         elif type(value) == probability:
             return probability(sum(self.value) ** sum(value.value))
 
-    def __lt__(self, value):
+    def __lt__(self, value) -> "probability":
         """
         Last modified: (1.0.0)
         """
@@ -153,7 +153,7 @@ class probability:
         elif type(value) == probability:
             return self.value[0] < value.value[0]
 
-    def __le__(self, value):
+    def __le__(self, value) -> bool:
         """
         Last modified: (1.2.0)
         """
@@ -165,7 +165,7 @@ class probability:
         elif type(value) == probability:
             return self.value[0] <= value.value[0]
 
-    def __gt__(self, value):
+    def __gt__(self, value) -> bool:
         """
         Last modified: (1.2.0)
         """
@@ -177,7 +177,7 @@ class probability:
         elif type(value) == probability:
             return self.value[0] > value.value[0]
 
-    def __ge__(self, value):
+    def __ge__(self, value) -> bool:
         """
         Last modified: (1.2.0)
         """
@@ -189,7 +189,7 @@ class probability:
         elif type(value) == probability:
             return self.value[0] >= value.value[0]
 
-    def __eq__(self, value):
+    def __eq__(self, value) -> bool:
         """
         Last modified: (1.0.0)
         """
@@ -201,14 +201,14 @@ class probability:
         elif type(value) == probability:
             return self.value[0] == value.value[0]
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Last modified: (1.0.0)
         """
         self.value:list
         return len(self.value)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> "probability":
         """
         Last modified: (1.0.0)
         """
@@ -557,13 +557,13 @@ class discrete_function:
 
         return residual
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Last modified: (1.0.0)
         """
         return f"Function: {self.name}\nAll args: {self.args} {self.keyargs}"
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> probability:
         """
         Last modified: (1.0.0)
         """
@@ -579,7 +579,7 @@ class discrete_function:
         else:
             return probability(self.find(index), start = start)
 
-    def __add__(self, obj):
+    def __add__(self, obj) -> "discrete_function":
         """
         Last modified: (1.0.0)
         """
@@ -591,7 +591,7 @@ class discrete_function:
             return discrete_function(lambda x, **args: self.function(x, **args) + obj,
                                      **self.keyargs)
 
-    def __sub__(self, obj):
+    def __sub__(self, obj) -> "discrete_function":
         """
         Last modified: (1.0.0)
         """
@@ -603,7 +603,7 @@ class discrete_function:
             return discrete_function(lambda x, **args: self.function(x, **args) - obj,
                                      **self.keyargs)
 
-    def __truediv__(self, obj):
+    def __truediv__(self, obj) -> "discrete_function":
         """
         Last modified: (1.0.0)
         """
@@ -615,7 +615,7 @@ class discrete_function:
             return discrete_function(lambda x, **args: self.function(x, **args) / obj,
                                      **self.keyargs)
 
-    def __mul__(self, obj):
+    def __mul__(self, obj) -> "discrete_function":
         """
         Last modified: (1.0.0)
         """
@@ -627,7 +627,7 @@ class discrete_function:
             return discrete_function(lambda x, **args: self.function(x, **args) * obj,
                                      **self.keyargs)
     
-    def __pow__(self, obj):
+    def __pow__(self, obj) -> "discrete_function":
         """
         Last modified: (1.0.0)
         """
