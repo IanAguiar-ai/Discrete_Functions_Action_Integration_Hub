@@ -21,7 +21,10 @@ class
     ├─-----(other less relevant functions(self))
     └─-----(__special_methods__)
 functions
- └─adjust_sample_on
+ ├─adjust_sample_on
+ ├─sample
+ ├─sample
+ └─sample
 ```
 
 ### Operation:

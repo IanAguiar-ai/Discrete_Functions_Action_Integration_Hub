@@ -1,20 +1,11 @@
 Metadata-Version: 2.1
 Name: discrete-function
-Version: 1.3.2
+Version: 1.4.0
 Summary: Discrete Function HUB
 Home-page: UNKNOWN
 Author: ['Ian dos Anjos']
 Author-email: <iannaianjos@gmail.com>
 License: UNKNOWN
-Description: 
-        # Discrete_Functions_Action_Integration_Hub
-        HUB that adds higher-level functionalities to discrete functions created from scratch.
-        
-        ## To download:
-        
-        ```
-        pip install git+https://github.com/IanAguiar-ai/Discrete_Functions_Action_Integration_Hub
-        ```
 Keywords: python,discrete_function,hub_discrete_function
 Platform: UNKNOWN
 Classifier: Development Status :: 1 - Planning
@@ -24,3 +15,69 @@ Classifier: Operating System :: Unix
 Classifier: Operating System :: MacOS :: MacOS X
 Classifier: Operating System :: Microsoft :: Windows
 Description-Content-Type: text/markdown
+License-File: LICENSE
+
+
+# Discrete_Functions_Action_Integration_Hub
+HUB that adds higher-level functionalities to discrete functions created from scratch.
+
+## To download:
+
+```
+pip install git+https://github.com/IanAguiar-ai/Discrete_Functions_Action_Integration_Hub
+```
+
+##Operation
+
+### Summary:
+
+```
+class
+ └─discrete_funcion (Discrete_function, Df)
+    ├─find
+    ├─accumulated
+    ├─adjust_to_curve
+    ├─plot
+    ├─-----(other less relevant functions(self))
+    └─-----(__special_methods__)
+functions
+ ├─adjust_sample_on
+ ├─sample
+ ├─sample
+ └─sample
+```
+
+### Operation:
+
+```
+.-----.                       
+|curve|                       
+'.----'                       
+.'--------------------------. 
+|           model           | 
+'.----------------.--.--.--.' 
+.'---------------.|  |  |  |  
+|adjust_sample_on||  |  |  |  
+'----------------'|  |  |  |  
+.-----------.     |  |  |  |  
+|probability|     |  |  |  |  
+'.----------'     |  |  |  |  
+.'----------------'-.|  |  |  
+| discrete_function ||  |  |  
+'-------------------'|  |  |  
+.----.               |  |  |  
+|plot|               |  |  |  
+'.---'               |  |  |  
+.'-------------------'-.|  |  
+|      regression      ||  |  
+'----------------------'|  |  
+.-----------------------'-.|  
+|      your_function      ||  
+'-------------------------'|  
+.--------------------------'-.
+|             x              |
+'----------------------------'
+
+```
+
+

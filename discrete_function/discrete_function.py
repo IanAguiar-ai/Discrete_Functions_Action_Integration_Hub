@@ -715,6 +715,71 @@ def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, m
     print(best_model[0])
     return best_model[0]
 
+def sample(samples:list) -> (list, list):
+    """
+    Takes a sample list and returns the x and y lists needed to put into the Df object
+    Last modified: (1.4.0)
+    """
+    min_:float = min(samples)
+    max_:float = max(samples)
+    divisions:int = int(len(samples)**(1.2/2))
+    dif:float = max_ - min_
+    jump:float = dif/divisions
+
+    x:list = []
+    for i in range(divisions - 1):
+        x.append((i*jump + (i+1)*jump)/2 + min_)
+
+    y:list = [0 for i in range(len(x))]
+    for value in samples:
+        n:int = 0
+        while n < len(x):
+            if value < x[n]:
+                y[n] += 1
+                break
+            n += 1
+
+    y:list = list(map(lambda x: x/sum(y), y))
+    return x, y
+
+def continuous_accumulation(function:discrete_function, **keyargs:dict) -> (list, list):
+    """
+    Makes the continuous accumulation of the passed function, both a function that has just been defined and a Df object can be passed
+    Last modified: (1.4.0)
+    """
+    if type(function) == discrete_function:
+        keyargs:dict = function.keyargs
+        function:"function" = function.function
+    max_:int = 1000
+    x:list = [i/max_ for i in range(0, max_ + 1)]
+    y_:list = []
+    y:list = []
+    for i in range(0, max_ + 1):
+        i_:float = i/max_
+        y_.append(function(x = i_, **keyargs))
+        
+    y_:list = list(map(lambda x: x/sum(y_), y_))
+    
+    for i in range(len(y_)):
+        y.append(sum(y_[0:i]))
+    return x, y
+
+def accumulated_sample(x:list, y:list, num_samples:int) -> list:
+    """
+    Takes a sample of the accumulation, the user must pass the x and y taken in the continuous accumulation function
+    Last modified: (1.4.0)
+    """
+    sample:list = []
+    for _ in range(num_samples):
+        random_n:float = random()
+        n = 0
+        while n < len(y):
+            if random_n < y[n]:
+                sample.append((x[n] + x[n+1])/2)
+                break
+            n += 1
+    return sample
+
 def b_(pont_1:list, pont_2:list, porc:float) -> list:
     """
     Last modified: (1.0.0)
