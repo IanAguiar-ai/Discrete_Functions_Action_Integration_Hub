@@ -772,7 +772,7 @@ def accumulated_sample(x:list, y:list, num_samples:int) -> list:
     sample:list = []
     for _ in range(num_samples):
         random_n:float = random()
-        n = 0
+        n:int = 0
         while n < len(y):
             if random_n < y[n]:
                 sample.append((x[n] + x[n+1])/2)
