@@ -567,7 +567,7 @@ class discrete_function:
 
     def sample(self, discrete:bool = True) -> (list, list, list):
         """
-        Last modified: (1.4.2)
+        Last modified: (1.4.3)
         """
         x_acc, y_acc = continuous_accumulation(self, discrete = discrete)
         samp:list = accumulated_sample(x_acc, y_acc, 100)
@@ -763,10 +763,11 @@ def sample_of(samples:list, divisions:float = None) -> (list, list):
 def continuous_accumulation(function:discrete_function, discrete:bool = False, **keyargs:dict) -> (list, list):
     """
     Makes the continuous accumulation of the passed function, both a function that has just been defined and a Df object can be passed
-    Last modified: (1.4.2)
+    Last modified: (1.4.3)
     """
     if type(function) == discrete_function:
-        max_:int = int(max(function._discrete_function__memory[0]))
+        if discrete:
+            max_:int = int(max(function._discrete_function__memory[0]))
         keyargs:dict = function.keyargs
         function:"function" = function.function
 
