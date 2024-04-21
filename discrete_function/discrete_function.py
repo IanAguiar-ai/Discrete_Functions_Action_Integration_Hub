@@ -571,7 +571,7 @@ class discrete_function:
         """
         x_acc, y_acc = continuous_accumulation(self, discrete = discrete)
         samp:list = accumulated_sample(x_acc, y_acc, 100)
-        return samp, *sample(samp)
+        return samp, *sample_of(samp)
 
     def __str__(self) -> str:
         """
@@ -731,7 +731,7 @@ def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, m
     print(best_model[0])
     return best_model[0]
 
-def sample(samples:list, divisions:float = None) -> (list, list):
+def sample_of(samples:list, divisions:float = None) -> (list, list):
     """
     Takes a sample list and returns the x and y lists needed to put into the Df object
     Last modified: (1.4.1)

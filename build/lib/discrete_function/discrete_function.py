@@ -565,6 +565,14 @@ class discrete_function:
 
         return residual
 
+    def sample(self, discrete:bool = True) -> (list, list, list):
+        """
+        Last modified: (1.4.2)
+        """
+        x_acc, y_acc = continuous_accumulation(self, discrete = discrete)
+        samp:list = accumulated_sample(x_acc, y_acc, 100)
+        return samp, *sample_of(samp)
+
     def __str__(self) -> str:
         """
         Last modified: (1.0.0)
@@ -723,7 +731,7 @@ def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, m
     print(best_model[0])
     return best_model[0]
 
-def sample(samples:list, divisions:float = None) -> (list, list):
+def sample_of(samples:list, divisions:float = None) -> (list, list):
     """
     Takes a sample list and returns the x and y lists needed to put into the Df object
     Last modified: (1.4.1)
@@ -752,30 +760,40 @@ def sample(samples:list, divisions:float = None) -> (list, list):
     y:list = list(map(lambda x: x/sum(y), y))
     return x, y
 
-def continuous_accumulation(function:discrete_function, lim:float = 1, **keyargs:dict) -> (list, list):
+def continuous_accumulation(function:discrete_function, discrete:bool = False, **keyargs:dict) -> (list, list):
     """
     Makes the continuous accumulation of the passed function, both a function that has just been defined and a Df object can be passed
-    Last modified: (1.4.1)
+    Last modified: (1.4.2)
     """
     if type(function) == discrete_function:
-        if lim == None:
-            l:list = sorted(function._discrete_function__memory[1])
-            lim:float = l[int(len(l)*0.9)]
+        max_:int = int(max(function._discrete_function__memory[0]))
         keyargs:dict = function.keyargs
         function:"function" = function.function
+
+    if discrete:
+        x:list = [i for i in range(0, max_)]
+        y_:list = []
+        y:list = []
+        for i in x:
+            y_.append(function(x = i, **keyargs))
+            
+        y_:list = list(map(lambda x: x/sum(y_), y_))
         
-    max_:int = 1000
-    x:list = [(i*lim)/max_ for i in range(0, max_ + 1)]
-    y_:list = []
-    y:list = []
-    for i in range(0, max_ + 1):
-        i_:float = i/max_
-        y_.append(function(x = i_, **keyargs))
+        for i in range(len(y_)):
+            y.append(sum(y_[0:i]))
+    else:
+        max_:int = 1000
+        x:list = [(i)/max_ for i in range(0, max_ + 1)]
+        y_:list = []
+        y:list = []
+        for i in range(0, max_ + 1):
+            i_:float = i/max_
+            y_.append(function(x = i_, **keyargs))
+            
+        y_:list = list(map(lambda x: x/sum(y_), y_))
         
-    y_:list = list(map(lambda x: x/sum(y_), y_))
-    
-    for i in range(len(y_)):
-        y.append(sum(y_[0:i]))
+        for i in range(len(y_)):
+            y.append(sum(y_[0:i]))
     return x, y
 
 def accumulated_sample(x:list, y:list, num_samples:int) -> list:
