@@ -367,6 +367,7 @@ final_final_error.plot([0, 320], curve = [x, y])
 """
 
 from discrete_function import *
+seed(2024)
 
 def beta(x, a, b):
   return x**(a-1) * (1-x)**(b-1)
@@ -382,3 +383,88 @@ best = adjust_sample_on(curve = y, x = x,
                         times = 12,
                         initial_value = 0.1,
                         plot = True)
+
+residual_beta = best.residual()
+
+from discrete_function import *
+seed(2024)
+
+def beta_1(x, a, b, **args):
+  return (x**(a-1) * (1-x)**(b-1))/2
+def beta_2(x, c, d, **args):
+  return (x**(c-1) * (1-x)**(d-1))/2
+
+process_1 = Df(beta_1, a = 2, b = 5)
+process_2 = Df(beta_2, c = 7, d = 2)
+process = process_1 + process_2
+acc_x, acc_y = continuous_accumulation(process)
+samp = accumulated_sample(acc_x, acc_y, 1000)
+x, y = sample(samp)
+
+model = Df(beta_1) + Df(beta_2)
+best = adjust_sample_on(curve = y, x = x,
+                        models = [model],
+                        times = 8,
+                        initial_value = 0.25,
+                        plot = True)
+
+resp = best.residual()
+
+"""### Example of the game
+
+We have a game where there are two events, event A and event B, the probability of event A is 20% and that of event B is 80%, let's take some samples and see if the library can get the probability of event B as well as the normalizing constant so that we obtain the density function.
+
+Descriptive functions
+"""
+
+def generate(n: int, prob: float) -> list:
+    l: list = []
+    for _ in range(n):
+        resp: int = 0
+        while True:
+            resp += 1
+            if prob > random():
+                break
+        l.append(resp)
+    return l
+
+def mean(l: list) -> float:
+    resp = 0
+    for i in l:
+        resp += i
+    return resp / len(l)
+
+def median(l: list) -> float:
+    return l[int(len(l) / 4)], l[int(len(l) / 2)], l[int(len(l)/4 * 3)]
+
+"""Capturing the samples"""
+
+events = sorted(generate(100000, 0.2))
+m: float = mean(events)
+m25, m50, m75 = median(events)
+print(f"Samples: {events[:10]}, {events[int(len(events)/2) - 10 : int(len(events)/2) + 10]}, {events[-10:]}")
+print(f"Mean: {m}")
+print(f"Quartiles: {m25} - {m50} - {m75}")
+
+"""Creating candidate models"""
+
+def model_a(x:float, a:float, c:float) -> float:
+    return c * a**x * (1-a**x)
+
+def model_b(x:float, a:float, c:float) -> float:
+    return a**x * c
+
+"""Training the model"""
+
+x_, y_ = sample(events, 50)
+
+model_1 = Df(model_a)
+model_2 = Df(model_b)
+
+best = adjust_sample_on(curve = y_, x = x_,
+                            models = [model_1, model_2],
+                            times = 8,
+                            initial_value = 0.1,
+                            plot = True)
+
+residuals = best.residual()
