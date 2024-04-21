@@ -373,9 +373,9 @@ def beta(x, a, b):
   return x**(a-1) * (1-x)**(b-1)
 
 process = Df(beta, a = 4, b = 3) #Real
-acc_x, acc_y = continuous_accumulation(process)
+acc_x, acc_y = continuous_accumulation(process, discrete = False)
 samp = accumulated_sample(acc_x, acc_y, 1000)
-x, y = sample(samp)
+x, y = sample_of(samp)
 
 model = Df(beta)
 best = adjust_sample_on(curve = y, x = x,
@@ -399,7 +399,7 @@ process_2 = Df(beta_2, c = 7, d = 2)
 process = process_1 + process_2
 acc_x, acc_y = continuous_accumulation(process)
 samp = accumulated_sample(acc_x, acc_y, 1000)
-x, y = sample(samp)
+x, y = sample_of(samp)
 
 model = Df(beta_1) + Df(beta_2)
 best = adjust_sample_on(curve = y, x = x,
@@ -456,7 +456,7 @@ def model_b(x:float, a:float, c:float) -> float:
 
 """Training the model"""
 
-x_, y_ = sample(events, 50)
+x_, y_ = sample_of(events, 50)
 
 model_1 = Df(model_a)
 model_2 = Df(model_b)
@@ -468,3 +468,15 @@ best = adjust_sample_on(curve = y_, x = x_,
                             plot = True)
 
 residuals = best.residual()
+
+"""Taking more samples generated from the new probability density function"""
+
+samp, x, y = best.sample()
+samp = sorted(samp)
+
+m: float = mean(samp)
+m25, m50, m75 = median(samp)
+
+print(f"Samples: {samp[:10]}, {samp[int(len(samp)/2) - 10 : int(len(samp)/2) + 10]}, {samp[-10:]}")
+print(f"Mean: {m}")
+print(f"Quartiles: {m25} - {m50} - {m75}")
