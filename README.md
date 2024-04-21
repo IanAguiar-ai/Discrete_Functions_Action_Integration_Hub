@@ -23,8 +23,8 @@ class
 functions
  ├─adjust_sample_on
  ├─sample
- ├─sample
- └─sample
+ ├─accumulated_sample
+ └─continuous_accumulation
 ```
 
 ### Operation:

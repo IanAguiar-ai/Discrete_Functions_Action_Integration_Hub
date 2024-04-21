@@ -309,7 +309,7 @@ class discrete_function:
         curve has to be a list with values f(x) = y where x starts
         at 0 and goes to the end of the list being real numbers.
         param is a positive number.
-        Last modified: (1.3.0)
+        Last modified: (1.4.1)
         """
         self.__memory = [x, curve]
 
@@ -364,6 +364,10 @@ class discrete_function:
 
             op = 0
             while op < max_iterations and param_0 != param_1:
+                if type(dif_0) == complex:
+                    dif_0 = dif_0.real
+                if type(dif_1) == complex:
+                    dif_1 = dif_1.real
                 if dif_0 < dif_1:
                     param_1 = (param_0 + param_1)/2
                     jump /= 2
@@ -381,6 +385,10 @@ class discrete_function:
                     self.__values = [self.find(i) for i in x]
                     dif_1 = self.function_error(self.__values, curve)
                 op += 1
+            if type(dif_0) == complex:
+                dif_0 = dif_0.real
+            if type(dif_1) == complex:
+                dif_1 = dif_1.real
             self.error = max(dif_0, dif_1)
 
             if plot:
@@ -715,14 +723,16 @@ def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, m
     print(best_model[0])
     return best_model[0]
 
-def sample(samples:list) -> (list, list):
+def sample(samples:list, divisions:float = None) -> (list, list):
     """
     Takes a sample list and returns the x and y lists needed to put into the Df object
-    Last modified: (1.4.0)
+    Last modified: (1.4.1)
     """
+    if divisions == None:
+        divisions:int = min(int(len(samples)**(1/2)), 100)
+        
     min_:float = min(samples)
     max_:float = max(samples)
-    divisions:int = int(len(samples)**(1.2/2))
     dif:float = max_ - min_
     jump:float = dif/divisions
 
@@ -742,16 +752,20 @@ def sample(samples:list) -> (list, list):
     y:list = list(map(lambda x: x/sum(y), y))
     return x, y
 
-def continuous_accumulation(function:discrete_function, **keyargs:dict) -> (list, list):
+def continuous_accumulation(function:discrete_function, lim:float = 1, **keyargs:dict) -> (list, list):
     """
     Makes the continuous accumulation of the passed function, both a function that has just been defined and a Df object can be passed
-    Last modified: (1.4.0)
+    Last modified: (1.4.1)
     """
     if type(function) == discrete_function:
+        if lim == None:
+            l:list = sorted(function._discrete_function__memory[1])
+            lim:float = l[int(len(l)*0.9)]
         keyargs:dict = function.keyargs
         function:"function" = function.function
+        
     max_:int = 1000
-    x:list = [i/max_ for i in range(0, max_ + 1)]
+    x:list = [(i*lim)/max_ for i in range(0, max_ + 1)]
     y_:list = []
     y:list = []
     for i in range(0, max_ + 1):
@@ -767,13 +781,13 @@ def continuous_accumulation(function:discrete_function, **keyargs:dict) -> (list
 def accumulated_sample(x:list, y:list, num_samples:int) -> list:
     """
     Takes a sample of the accumulation, the user must pass the x and y taken in the continuous accumulation function
-    Last modified: (1.4.0)
+    Last modified: (1.4.1)
     """
     sample:list = []
     for _ in range(num_samples):
         random_n:float = random()
-        n = 0
-        while n < len(y):
+        n:int = 0
+        while n < len(y) - 1:
             if random_n < y[n]:
                 sample.append((x[n] + x[n+1])/2)
                 break
