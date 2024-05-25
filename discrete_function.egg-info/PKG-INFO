@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: discrete-function
-Version: 1.4.3
+Version: 1.5.0
 Summary: Discrete Function HUB
 Home-page: UNKNOWN
 Author: ['Ian dos Anjos']
@@ -38,11 +38,14 @@ class
     ├─accumulated
     ├─adjust_to_curve
     ├─plot
+    ├─sample
+    ├─evaluate
+    ├─residual
     ├─-----(other less relevant functions(self))
     └─-----(__special_methods__)
 functions
  ├─adjust_sample_on
- ├─sample
+ ├─sample_of
  ├─accumulated_sample
  └─continuous_accumulation
 ```

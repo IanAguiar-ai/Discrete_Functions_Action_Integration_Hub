@@ -18,11 +18,14 @@ class
     ├─accumulated
     ├─adjust_to_curve
     ├─plot
+    ├─sample
+    ├─evaluate
+    ├─residual
     ├─-----(other less relevant functions(self))
     └─-----(__special_methods__)
 functions
  ├─adjust_sample_on
- ├─sample
+ ├─sample_of
  ├─accumulated_sample
  └─continuous_accumulation
 ```

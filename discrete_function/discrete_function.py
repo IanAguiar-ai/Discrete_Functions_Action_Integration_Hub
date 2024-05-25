@@ -304,12 +304,12 @@ class discrete_function:
         else:
             return probability(self.value)
 
-    def adjust_to_curve(self, name_param:str = None, curve:list = None, x:list = None, max_iterations:int = 100, initial_value:float = 1, plot:bool = False, times:int = 1, print_details:bool = True) -> (float, float):
+    def adjust_to_curve(self, name_param:str = None, curve:list = None, x:list = None, max_iterations:int = 100, initial_value:float = 1, plot:bool = False, times:int = 1, print_details:bool = True, stopping_criteria:float = 0.00001) -> (float, float):
         """
         curve has to be a list with values f(x) = y where x starts
         at 0 and goes to the end of the list being real numbers.
         param is a positive number.
-        Last modified: (1.4.1)
+        Last modified: (1.5.0)
         """
         self.__memory = [x, curve]
 
@@ -329,7 +329,8 @@ class discrete_function:
                                                        x = x,
                                                        max_iterations = max_iterations,
                                                        initial_value = initial_value,
-                                                       plot = plot)
+                                                       plot = plot,
+                                                       stopping_criteria = stopping_criteria)
                     if print_details:
                         print(f"Lower Limit = {parans[0]}\nUpper Limit = {parans[1]}\n")
                     params_variables[name]:float = parans
@@ -374,7 +375,7 @@ class discrete_function:
                     
                     self.keyargs[name_param] = param_1
                     self.__values = [self.find(i) for i in x]
-                    dif_1 = self.function_error(self.__values, curve)
+                    dif_1 = self.function_error(self.__values, curve)                    
                 else:
                     param_0, param_1 =(param_0 + param_1)/2, param_1 + jump
 
@@ -384,6 +385,14 @@ class discrete_function:
                     self.keyargs[name_param] = param_1
                     self.__values = [self.find(i) for i in x]
                     dif_1 = self.function_error(self.__values, curve)
+
+                if stopping_criteria != None:
+                    if "last_dif" in locals(): #stop parameter
+                        if abs(last_dif - dif_1) < stopping_criteria:
+                            break
+                    last_dif = dif_1
+
+                    
                 op += 1
             if type(dif_0) == complex:
                 dif_0 = dif_0.real
@@ -568,6 +577,9 @@ class discrete_function:
     def sample(self, discrete:bool = True) -> (list, list, list):
         """
         Last modified: (1.4.3)
+        Removes a number of samples from the distribution,
+        if it is discrete it goes up to the observed maximum,
+        otherwise it goes up to 1
         """
         x_acc, y_acc = continuous_accumulation(self, discrete = discrete)
         samp:list = accumulated_sample(x_acc, y_acc, 100)
@@ -679,9 +691,9 @@ def convert(value:"unknown") -> float:
         return value.value[0]
     return value
 
-def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, max_iterations:int = 20, times:int = 6, plot:bool = False, print_details:bool = False) -> discrete_function:
+def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, max_iterations:int = 20, times:int = 6, plot:bool = False, print_details:bool = False, stopping_criteria:float = 0.00001) -> discrete_function:
     """
-    Last modified: (1.0.0)
+    Last modified: (1.5.0)
     """
     from copy import deepcopy
     
@@ -701,7 +713,8 @@ def adjust_sample_on(curve, models, x:list = None, initial_value:float = 0.25, m
                                       plot = False,
                                       times = 1,
                                       max_iterations = max_iterations,
-                                      print_details = print_details)
+                                      print_details = print_details,
+                                      stopping_criteria = stopping_criteria)
                 if model.error < best_model[1]:
                     best_model:tuple = (deepcopy(model), deepcopy(model.error))
                 if model.error < best_temporary_model[1]:
