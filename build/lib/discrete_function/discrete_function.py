@@ -387,11 +387,13 @@ class discrete_function:
                     dif_1 = self.function_error(self.__values, curve)
 
                 if stopping_criteria != None:
-                    if "last_dif" in locals(): #stop parameter
-                        if abs(last_dif - dif_1) < stopping_criteria:
-                            break
-                    last_dif = dif_1
-
+                    try:
+                        if "last_dif" in locals(): #stop parameter
+                            if abs(last_dif - dif_1) < stopping_criteria:
+                                break
+                        last_dif = dif_1
+                    except TypeError:
+                        stopping_criteria = None
                     
                 op += 1
             if type(dif_0) == complex:
