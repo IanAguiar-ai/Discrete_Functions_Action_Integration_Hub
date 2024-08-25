@@ -861,6 +861,29 @@ def smooth_curve(p1:list, p2:list, p3:list, p4:list, iterations:int = 4) -> list
 
     return bezier(*sorted((p2, c, p3), key=lambda x: x[0]), iterations)
 
+def multiple_exponential_smoothing(vector:list, alpha:float = 0.05, iterations:int = 10) -> list:
+    """
+    Last modified (1.5.1)
+    Function designed to make curves smoother, it loses some observations, by default, the last 3 observations are lost
+    """
+    def exponential_smoothing(vector:list, alpha:float) -> list:
+        """
+        *Y[0] = Y[0]
+        *Y[t] = Y[t] * alpha + *Y[y-1] * (1 - alpha)
+        Weight(Y[t - k]) = alpha * (1 - alpha)^(k)
+        """
+        new_vector = [vector[0]]
+        for i in range(1, len(vector)):
+            new_vector.append(vector[i] * alpha + new_vector[-1] * (1 - alpha))
+        return new_vector
+
+    lost_data:int = int((0.5/alpha)**(1/2))
+    correct_alpha:float = alpha**(1/iterations)
+    for _ in range(iterations):
+        vector:list = exponential_smoothing(vector, alpha = correct_alpha)
+
+    return vector[lost_data:]
+
 #Other names for same class:
 Discrete_function = discrete_function
 Df = discrete_function
